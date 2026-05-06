@@ -11,7 +11,7 @@ import Combine
 
 struct TimerView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+
     
     @State private var isTimerRunning = false
     @State private var timeRemaining: TimeInterval = 25 * 60 // 25分
@@ -236,5 +236,5 @@ enum TimerMode: String, CaseIterable {
 
 #Preview {
     TimerView()
-        .modelContainer(for: Item.self, inMemory: true)
+        
 }

@@ -14,7 +14,7 @@ import SwiftUI
 struct FocusActionApp: App {
     var body: some Scene {
         WindowGroup {
-            TimerView()
+            ControlView()
         }
     }
 }
