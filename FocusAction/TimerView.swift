@@ -5,21 +5,24 @@
 //  Created by とくおかけいと on 2026/05/06.
 //
 
+// 必要なパッケージをあらかじめインポート
 import SwiftUI
-import SwiftData
 import Combine
 
 struct TimerView: View {
-    @Environment(\.modelContext) private var modelContext
 
+    // State関数 -> Viewに対して状態をもたせる(UIに動きをつけることができる)
+    @State private var isTimerRunning = false   // タイマーが動いているかどうか(bool: false -> 動いていない)
+    @State private var timeRemaining: TimeInterval = 25 * 60 // 25分(残り時間)
+    @State private var totalTime: TimeInterval = 25 * 60 // 総時間
+    @State private var timerMode: TimerMode = .focus    // 現在のモード
     
-    @State private var isTimerRunning = false
-    @State private var timeRemaining: TimeInterval = 25 * 60 // 25分
-    @State private var totalTime: TimeInterval = 25 * 60
-    @State private var timerMode: TimerMode = .focus
-    
+    // CombineフレームワークのTimer.publishを使用(使えるようにインスタンス化)
+        // -> 1秒ごとにイベントを発行、自動的に接続(タイマーは1秒ごとに進み、その都度状態を更新する必要があるため)
+        // everyプロパティを1にすることで、1秒おきに設定している
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
+    
+    // UI部分 -> 実際に表示される文字や円形んプログレスバーを宣言的なコードで記述する
     var body: some View {
         ZStack {
             // 背景を白に
@@ -125,10 +128,13 @@ struct TimerView: View {
             }
             .padding()
         }
+        // タイマー処理で、1秒ずず値を減らしている
         .onReceive(timer) { _ in
+            // 0以上の値の時 -> 残り時間がある間はデクリメントメソッドを繰り返し行う
             if isTimerRunning && timeRemaining > 0 {
                 timeRemaining -= 1
             } else if timeRemaining == 0 {
+                // 残り時間がゼロになるとタイマーを止める
                 timerCompleted()
             }
         }
@@ -186,6 +192,7 @@ struct TimerView: View {
     private func timerCompleted() {
         isTimerRunning = false
         // 完了時の処理（通知、サウンドなど）
+        
         
         // 自動的に次のモードへ切り替え
         withAnimation {
