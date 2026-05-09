@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1AEC387B2FAEC40400697997 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1AEC387A2FAEC40400697997 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1A47F9552FAB17950047B8D8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		1A47F9432FAB17940047B8D8 /* FocusAction.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusAction.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A47F9542FAB17950047B8D8 /* FocusActionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusActionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A47F95E2FAB17950047B8D8 /* FocusActionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusActionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AEC387A2FAEC40400697997 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -88,6 +93,7 @@
 		1A47F93A2FAB17940047B8D8 = {
 			isa = PBXGroup;
 			children = (
+				1AEC387A2FAEC40400697997 /* README.md */,
 				1A47F9452FAB17940047B8D8 /* FocusAction */,
 				1A47F9572FAB17950047B8D8 /* FocusActionTests */,
 				1A47F9612FAB17950047B8D8 /* FocusActionUITests */,
@@ -225,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AEC387B2FAEC40400697997 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
