@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HistoryView: View {
     var body: some View {
-        Text("履歴を確認する画面")
+        // 履歴を見るページ
+        Text("履歴を確認")
     }
 }

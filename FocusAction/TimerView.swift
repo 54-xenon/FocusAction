@@ -2,20 +2,24 @@
 //  ContentView.swift
 //  FocusAction
 //
-//  Created by とくおかけいと on 2026/05/06.
 //
 
 // 必要なパッケージをあらかじめインポート
 import SwiftUI
 import Combine
+import SwiftData
 
 struct TimerView: View {
 
+    // SwiftDataのモデルコンテキストを取得
+    @Environment(\.modelContext) private var modelContext
+    
     // State関数 -> Viewに対して状態をもたせる(UIに動きをつけることができる)
     @State private var isTimerRunning = false   // タイマーが動いているかどうか(bool: false -> 動いていない)
     @State private var timeRemaining: TimeInterval = 25 * 60 // 25分(残り時間)
     @State private var totalTime: TimeInterval = 25 * 60 // 総時間
     @State private var timerMode: TimerMode = .focus    // 現在のモード
+    @State private var sessionStartDate: Date? = nil // セッション開始時刻を記録
     
     // CombineフレームワークのTimer.publishを使用(使えるようにインスタンス化)
         // -> 1秒ごとにイベントを発行、自動的に接続(タイマーは1秒ごとに進み、その都度状態を更新する必要があるため)
@@ -168,6 +172,11 @@ struct TimerView: View {
     private func toggleTimer() {
         withAnimation(.spring(response: 0.3)) {
             isTimerRunning.toggle()
+            
+            // タイマー開始時に開始時刻を記録
+            if isTimerRunning && sessionStartDate == nil {
+                sessionStartDate = Date()
+            }
         }
     }
     
@@ -175,6 +184,7 @@ struct TimerView: View {
         withAnimation {
             isTimerRunning = false
             timeRemaining = totalTime
+            sessionStartDate = nil // 開始時刻もリセット
         }
     }
     
@@ -186,11 +196,16 @@ struct TimerView: View {
             totalTime = mode.duration
             timeRemaining = mode.duration
             isTimerRunning = false
+            sessionStartDate = nil // モード切替時は開始時刻をリセット
         }
     }
     
     private func timerCompleted() {
         isTimerRunning = false
+        
+        // セッションをSwiftDataに保存
+        saveSession(isCompleted: true)
+        
         // 完了時の処理（通知、サウンドなど）
         
         
@@ -203,6 +218,39 @@ struct TimerView: View {
                 switchMode(to: .focus)
             }
         }
+    }
+    
+    // MARK: - Data Persistence
+    
+    /// セッションをSwiftDataに保存する
+    private func saveSession(isCompleted: Bool) {
+        guard let startDate = sessionStartDate else { return }
+        
+        // 実際に経過した時間を計算
+        let elapsedTime = totalTime - timeRemaining
+        
+        // FocusSessionを作成
+        let session = FocusSession(
+            startDate: startDate,
+            duration: elapsedTime,
+            sessionType: timerMode == .focus ? .focus : .shortBreak,
+            tags: [], // 必要に応じてタグを追加できる
+            isCompleted: isCompleted
+        )
+        
+        // モデルコンテキストに追加
+        modelContext.insert(session)
+        
+        // 保存を試行
+        do {
+            try modelContext.save()
+            print("✅ セッションを保存しました: \(session.formattedDuration)")
+        } catch {
+            print("❌ セッション保存エラー: \(error.localizedDescription)")
+        }
+        
+        // 開始時刻をリセット
+        sessionStartDate = nil
     }
 }
 

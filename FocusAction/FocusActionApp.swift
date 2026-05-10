@@ -6,8 +6,7 @@
 
 // 必要なライブラリを読み込み
 import SwiftUI
-
-
+import SwiftData
 
 @main
 struct FocusActionApp: App {
@@ -15,5 +14,6 @@ struct FocusActionApp: App {
         WindowGroup {
             ControlView()
         }
+        .modelContainer(for: FocusSession.self)
     }
 }
