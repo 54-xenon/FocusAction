@@ -144,8 +144,9 @@ struct TimerView: View {
             // 0以上の値の時 -> 残り時間がある間はデクリメントメソッドを繰り返し行う
             if isTimerRunning && timeRemaining > 0 {
                 timeRemaining -= 1
-            } else if timeRemaining == 0 {
+            } else if isTimerRunning && timeRemaining <= 0 {
                 // 残り時間がゼロになるとタイマーを止める
+                print("⏰ タイマー完了検知: モード = \(timerMode.rawValue)")
                 timerCompleted()
             }
         }
@@ -220,7 +221,12 @@ struct TimerView: View {
     }
     
     private func switchMode(to mode: TimerMode) {
-        guard mode != timerMode else { return }
+        print("📝 switchMode呼び出し: \(timerMode.rawValue) → \(mode.rawValue)")
+        
+        guard mode != timerMode else {
+            print("⚠️ 同じモードのため切り替えスキップ")
+            return
+        }
         
         withAnimation {
             timerMode = mode
@@ -232,29 +238,41 @@ struct TimerView: View {
             // 通知をキャンセル
             notificationManager.cancelAllNotifications()
         }
+        
+        print("✅ モード切り替え完了: \(timerMode.rawValue), 残り時間: \(timeRemaining)秒")
     }
     
     private func timerCompleted() {
+        print("🎯 timerCompleted() 開始: モード = \(timerMode.rawValue)")
+        
         isTimerRunning = false
         
         // 通知をキャンセル（既に完了したため）
         notificationManager.cancelAllNotifications()
         
         // セッションをSwiftDataに保存
+        print("💾 セッション保存開始...")
         saveSession(isCompleted: true)
         
         // 完了時の処理（通知、サウンドなど）
         
         
         // 自動的に次のモードへ切り替え
-        withAnimation {
-            switch timerMode {
-            case .focus:
-                switchMode(to: .shortBreak)
-            case .shortBreak:
-                switchMode(to: .focus)
-            }
+        let nextMode: TimerMode
+        switch timerMode {
+        case .focus:
+            print("🔄 集中→休憩に切り替え")
+            nextMode = .shortBreak
+        case .shortBreak:
+            print("🔄 休憩→集中に切り替え")
+            nextMode = .focus
         }
+        
+        withAnimation {
+            switchMode(to: nextMode)
+        }
+        
+        print("✅ timerCompleted() 完了")
     }
     
     /// バックグラウンドから戻った時の処理
@@ -283,10 +301,15 @@ struct TimerView: View {
     
     /// セッションをSwiftDataに保存する
     private func saveSession(isCompleted: Bool) {
-        guard let startDate = sessionStartDate else { return }
+        guard let startDate = sessionStartDate else {
+            print("⚠️ sessionStartDateがnilのため保存をスキップ")
+            return
+        }
         
         // 実際に経過した時間を計算
         let elapsedTime = totalTime - timeRemaining
+        
+        print("💾 セッション保存: タイプ=\(timerMode.rawValue), 経過時間=\(elapsedTime)秒")
         
         // FocusSessionを作成
         let session = FocusSession(
