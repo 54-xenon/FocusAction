@@ -114,7 +114,7 @@ struct TimerView: View {
                 GlassEffectContainer(spacing: 12) {
                     HStack(spacing: 12) {
                         ForEach(TimerMode.allCases, id: \.self) { mode in
-                            Button(action: { switchMode(to: mode) }) {
+                            Button(action: { switchMode(to: mode, animated: true) }) {
                                 VStack(spacing: 8) {
                                     Image(systemName: mode.icon)
                                         .font(.system(size: 24))
@@ -179,8 +179,8 @@ struct TimerView: View {
     
     private var statusText: String {
         if isTimerRunning {
-            return "集中..."
-        } else if timeRemaining == 0 {
+            return timerMode == .focus ? "集中..." : "休憩中..."
+        } else if timeRemaining <= 0 {
             return "完了！"
         } else {
             return "タップして開始"
@@ -220,7 +220,7 @@ struct TimerView: View {
         }
     }
     
-    private func switchMode(to mode: TimerMode) {
+    private func switchMode(to mode: TimerMode, animated: Bool = true) {
         print("📝 switchMode呼び出し: \(timerMode.rawValue) → \(mode.rawValue)")
         
         guard mode != timerMode else {
@@ -228,51 +228,51 @@ struct TimerView: View {
             return
         }
         
-        withAnimation {
-            timerMode = mode
-            totalTime = mode.duration
-            timeRemaining = mode.duration
-            isTimerRunning = false
-            sessionStartDate = nil // モード切替時は開始時刻をリセット
-            
-            // 通知をキャンセル
-            notificationManager.cancelAllNotifications()
+        // 通知をキャンセル
+        notificationManager.cancelAllNotifications()
+        
+        // アニメーションの有無を制御
+        let changes = {
+            self.timerMode = mode
+            self.totalTime = mode.duration
+            self.timeRemaining = mode.duration
+            self.isTimerRunning = false
+            self.sessionStartDate = nil
+        }
+        
+        if animated {
+            withAnimation {
+                changes()
+            }
+        } else {
+            changes()
         }
         
         print("✅ モード切り替え完了: \(timerMode.rawValue), 残り時間: \(timeRemaining)秒")
     }
     
     private func timerCompleted() {
-        print("🎯 timerCompleted() 開始: モード = \(timerMode.rawValue)")
+        print("🎯 timerCompleted() 開始: モード = \(timerMode.rawValue), timeRemaining = \(timeRemaining)")
         
+        // タイマーを停止
         isTimerRunning = false
         
-        // 通知をキャンセル（既に完了したため）
+        // 通知をキャンセル
         notificationManager.cancelAllNotifications()
         
-        // セッションをSwiftDataに保存
+        // セッションを保存
         print("💾 セッション保存開始...")
         saveSession(isCompleted: true)
         
-        // 完了時の処理（通知、サウンドなど）
+        // 次のモードを決定
+        let nextMode: TimerMode = (timerMode == .focus) ? .shortBreak : .focus
+        print("🔄 \(timerMode.rawValue) → \(nextMode.rawValue) に切り替え")
         
-        
-        // 自動的に次のモードへ切り替え
-        let nextMode: TimerMode
-        switch timerMode {
-        case .focus:
-            print("🔄 集中→休憩に切り替え")
-            nextMode = .shortBreak
-        case .shortBreak:
-            print("🔄 休憩→集中に切り替え")
-            nextMode = .focus
+        // モード切り替え（アニメーションなしで即座に実行）
+        DispatchQueue.main.async {
+            self.switchMode(to: nextMode, animated: false)
+            print("✅ timerCompleted() 完了")
         }
-        
-        withAnimation {
-            switchMode(to: nextMode)
-        }
-        
-        print("✅ timerCompleted() 完了")
     }
     
     /// バックグラウンドから戻った時の処理
