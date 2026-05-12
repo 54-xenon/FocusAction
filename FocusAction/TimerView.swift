@@ -14,12 +14,19 @@ struct TimerView: View {
     // SwiftDataのモデルコンテキストを取得
     @Environment(\.modelContext) private var modelContext
     
+    // 環境変数でダークモード検知
+    @Environment(\.colorScheme) var colorScheme
+    
     // State関数 -> Viewに対して状態をもたせる(UIに動きをつけることができる)
     @State private var isTimerRunning = false   // タイマーが動いているかどうか(bool: false -> 動いていない)
     @State private var timeRemaining: TimeInterval = 25 * 60 // 25分(残り時間)
     @State private var totalTime: TimeInterval = 25 * 60 // 総時間
     @State private var timerMode: TimerMode = .focus    // 現在のモード
     @State private var sessionStartDate: Date? = nil // セッション開始時刻を記録
+    
+    // 通知とバックグラウンド管理
+    @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var backgroundManager = BackgroundTimerManager()
     
     // CombineフレームワークのTimer.publishを使用(使えるようにインスタンス化)
         // -> 1秒ごとにイベントを発行、自動的に接続(タイマーは1秒ごとに進み、その都度状態を更新する必要があるため)
@@ -29,8 +36,8 @@ struct TimerView: View {
     // UI部分 -> 実際に表示される文字や円形んプログレスバーを宣言的なコードで記述する
     var body: some View {
         ZStack {
-            // 背景を白に
-            Color.white
+            // 背景をダークモード対応
+            (colorScheme == .dark ? Color.black : Color.white)
                 .ignoresSafeArea()
             
             VStack(spacing: 40) {
@@ -142,6 +149,18 @@ struct TimerView: View {
                 timerCompleted()
             }
         }
+        // バックグラウンドから戻った時の処理
+        .onReceive(NotificationCenter.default.publisher(for: .timerShouldUpdate)) { notification in
+            handleBackgroundReturn(notification: notification)
+        }
+        // 表示時に通知権限をリクエスト
+        .task {
+            if !notificationManager.isAuthorized {
+                await notificationManager.requestAuthorization()
+            }
+            // バッジをクリア
+            notificationManager.clearBadge()
+        }
     }
     
     // MARK: - Computed Properties
@@ -176,6 +195,15 @@ struct TimerView: View {
             // タイマー開始時に開始時刻を記録
             if isTimerRunning && sessionStartDate == nil {
                 sessionStartDate = Date()
+                
+                // 通知をスケジュール
+                notificationManager.scheduleTimerCompletionNotification(
+                    for: timerMode,
+                    in: timeRemaining
+                )
+            } else if !isTimerRunning {
+                // タイマー停止時は通知をキャンセル
+                notificationManager.cancelAllNotifications()
             }
         }
     }
@@ -185,6 +213,9 @@ struct TimerView: View {
             isTimerRunning = false
             timeRemaining = totalTime
             sessionStartDate = nil // 開始時刻もリセット
+            
+            // 通知をキャンセル
+            notificationManager.cancelAllNotifications()
         }
     }
     
@@ -197,11 +228,17 @@ struct TimerView: View {
             timeRemaining = mode.duration
             isTimerRunning = false
             sessionStartDate = nil // モード切替時は開始時刻をリセット
+            
+            // 通知をキャンセル
+            notificationManager.cancelAllNotifications()
         }
     }
     
     private func timerCompleted() {
         isTimerRunning = false
+        
+        // 通知をキャンセル（既に完了したため）
+        notificationManager.cancelAllNotifications()
         
         // セッションをSwiftDataに保存
         saveSession(isCompleted: true)
@@ -217,6 +254,28 @@ struct TimerView: View {
             case .shortBreak:
                 switchMode(to: .focus)
             }
+        }
+    }
+    
+    /// バックグラウンドから戻った時の処理
+    private func handleBackgroundReturn(notification: Notification) {
+        guard let elapsed = notification.userInfo?["elapsed"] as? TimeInterval,
+              isTimerRunning else {
+            return
+        }
+        
+        // 経過時間分をタイマーから減算
+        timeRemaining = max(0, timeRemaining - elapsed)
+        
+        // タイマーが完了していたらイベントを発火
+        if timeRemaining <= 0 {
+            timerCompleted()
+        } else {
+            // 残り時間で通知を再スケジュール
+            notificationManager.scheduleTimerCompletionNotification(
+                for: timerMode,
+                in: timeRemaining
+            )
         }
     }
     

@@ -9,6 +9,7 @@ import SwiftData
 
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) var colorScheme
     
     // SwiftDataから全てのセッションを取得（新しい順）
     @Query(sort: \FocusSession.startDate, order: .reverse)
@@ -21,7 +22,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.white
+                (colorScheme == .dark ? Color.black : Color.white)
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
