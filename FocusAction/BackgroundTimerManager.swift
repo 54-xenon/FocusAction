@@ -8,9 +8,17 @@ import Foundation
 import UIKit
 import Combine
 
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let timerShouldUpdate = Notification.Name("timerShouldUpdate")
+}
+
+// MARK: - BackgroundTimerManager
+
 /// バックグラウンドでのタイマー管理を行うクラス
 @MainActor
-class BackgroundTimerManager: ObservableObject {
+final class BackgroundTimerManager: ObservableObject {
     @Published var backgroundDate: Date?
     
     private var notificationObservers: [NSObjectProtocol] = []
@@ -86,10 +94,11 @@ class BackgroundTimerManager: ObservableObject {
         guard let backgroundDate = backgroundDate else { return 0 }
         return Date().timeIntervalSince(backgroundDate)
     }
-}
-
-// MARK: - Notification Names
-
-extension Notification.Name {
-    static let timerShouldUpdate = Notification.Name("timerShouldUpdate")
+    
+    deinit {
+        notificationObservers.forEach { observer in
+            NotificationCenter.default.removeObserver(observer)
+        }
+        notificationObservers.removeAll()
+    }
 }
