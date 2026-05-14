@@ -17,6 +17,9 @@ struct TimerView: View {
     // 環境変数でダークモード検知
     @Environment(\.colorScheme) var colorScheme
     
+    // デバイスタイプを検知（iPad対応）
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
     // State関数 -> Viewに対して状態をもたせる(UIに動きをつけることができる)
     @State private var isTimerRunning = false   // タイマーが動いているかどうか(bool: false -> 動いていない)
     @State private var timeRemaining: TimeInterval = 25 * 60 // 25分(残り時間)
@@ -55,7 +58,7 @@ struct TimerView: View {
                     Circle()
                         .stroke(
                             Color.gray.opacity(0.15),
-                            lineWidth: 20
+                            lineWidth: isLargeDevice ? 24 : 20
                         )
                     
                     // プログレスを示す円（青系）
@@ -64,7 +67,7 @@ struct TimerView: View {
                         .stroke(
                             timerMode.color,
                             style: StrokeStyle(
-                                lineWidth: 20,
+                                lineWidth: isLargeDevice ? 24 : 20,
                                 lineCap: .round
                             )
                         )
@@ -72,18 +75,22 @@ struct TimerView: View {
                         .animation(.linear(duration: 1), value: progress)
                     
                     // 中央のタイマー表示 with Liquid Glass
-                    VStack(spacing: 16) {
+                    VStack(spacing: isLargeDevice ? 20 : 16) {
                         Text(timeString)
-                            .font(.system(size: 56, weight: .bold, design: .rounded))
+                            .font(.system(
+                                size: isLargeDevice ? 72 : 56,
+                                weight: .bold,
+                                design: .rounded
+                            ))
                             .foregroundStyle(.primary)
                         
                         Text(statusText)
-                            .font(.subheadline)
+                            .font(isLargeDevice ? .title3 : .subheadline)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(60)
+                    .padding(isLargeDevice ? 80 : 60)
                 }
-                .frame(width: 320, height: 320)
+                .frame(width: timerCircleSize, height: timerCircleSize)
                 
                 Spacer()
                 
@@ -93,47 +100,53 @@ struct TimerView: View {
                         // 再生/一時停止ボタン
                         Button(action: toggleTimer) {
                             Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
-                                .font(.system(size: 24))
+                                .font(.system(size: isLargeDevice ? 28 : 24))
                                 .foregroundStyle(timerMode.color)
-                                .frame(width: 70, height: 70)
+                                .frame(
+                                    width: isLargeDevice ? 80 : 70,
+                                    height: isLargeDevice ? 80 : 70
+                                )
                         }
                         .glassEffect(.regular.tint(timerMode.color.opacity(0.2)).interactive(), in: .circle)
                         
                         // リセットボタン
                         Button(action: resetTimer) {
                             Image(systemName: "arrow.clockwise")
-                                .font(.system(size: 24))
+                                .font(.system(size: isLargeDevice ? 28 : 24))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 70, height: 70)
+                                .frame(
+                                    width: isLargeDevice ? 80 : 70,
+                                    height: isLargeDevice ? 80 : 70
+                                )
                         }
                         .glassEffect(.regular.tint(.gray.opacity(0.1)).interactive(), in: .circle)
                     }
                 }
                 
                 // モード切り替えボタン
-                GlassEffectContainer(spacing: 12) {
-                    HStack(spacing: 12) {
+                GlassEffectContainer(spacing: isLargeDevice ? 16 : 12) {
+                    HStack(spacing: isLargeDevice ? 16 : 12) {
                         ForEach(TimerMode.allCases, id: \.self) { mode in
                             Button(action: { switchMode(to: mode, animated: true) }) {
-                                VStack(spacing: 8) {
+                                VStack(spacing: isLargeDevice ? 12 : 8) {
                                     Image(systemName: mode.icon)
-                                        .font(.system(size: 24))
+                                        .font(.system(size: isLargeDevice ? 32 : 24))
                                     Text(mode.rawValue)
-                                        .font(.caption)
+                                        .font(isLargeDevice ? .body : .caption)
                                         .fontWeight(.semibold)
                                 }
                                 .foregroundStyle(timerMode == mode ? mode.color : .secondary)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 20)
+                                .padding(.vertical, isLargeDevice ? 28 : 20)
                             }
                             .glassEffect(
                                 .regular.tint(timerMode == mode ? mode.color.opacity(0.15) : .gray.opacity(0.05)).interactive(),
-                                in: .rect(cornerRadius: 20)
+                                in: .rect(cornerRadius: isLargeDevice ? 24 : 20)
                             )
                         }
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, isLargeDevice ? 40 : 20)
                 
                 Spacer()
             }
@@ -165,6 +178,16 @@ struct TimerView: View {
     }
     
     // MARK: - Computed Properties
+    
+    /// iPadなど大画面デバイスかどうかを判定
+    private var isLargeDevice: Bool {
+        horizontalSizeClass == .regular
+    }
+    
+    /// デバイスに応じた円形プログレスバーのサイズ
+    private var timerCircleSize: CGFloat {
+        isLargeDevice ? 420 : 320
+    }
     
     private var progress: CGFloat {
         guard totalTime > 0 else { return 0 }
@@ -336,42 +359,6 @@ struct TimerView: View {
     }
 }
 
-// MARK: - Timer Mode Enum
-
-enum TimerMode: String, CaseIterable {
-    case focus = "集中"
-    case shortBreak = "休憩"
-    
-    var duration: TimeInterval {
-        switch self {
-        case .focus: return 25 * 60
-        case .shortBreak: return 5 * 60
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .focus: return .blue
-        case .shortBreak: return .green
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .focus: return "brain.head.profile"
-        case .shortBreak: return "cup.and.saucer.fill"
-        }
-    }
-    
-    var title: String {
-        switch self {
-        case .focus: return "集中タイム"
-        case .shortBreak: return "休憩タイム"
-        }
-    }
-}
-
 #Preview {
     TimerView()
-        
 }

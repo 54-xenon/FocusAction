@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1AEC387B2FAEC40400697997 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1AEC387A2FAEC40400697997 /* README.md */; };
+		1AF1A32D2FB600F600CD2FE8 /* FocusAction for Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1AF1A30D2FB600F400CD2FE8 /* FocusAction for Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,13 +26,51 @@
 			remoteGlobalIDString = 1A47F9422FAB17940047B8D8;
 			remoteInfo = FocusAction;
 		};
+		1AF1A31A2FB600F600CD2FE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A47F93B2FAB17940047B8D8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF1A30C2FB600F400CD2FE8;
+			remoteInfo = "FocusAction for Watch Watch App";
+		};
+		1AF1A3242FB600F600CD2FE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A47F93B2FAB17940047B8D8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF1A30C2FB600F400CD2FE8;
+			remoteInfo = "FocusAction for Watch Watch App";
+		};
+		1AF1A32B2FB600F600CD2FE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A47F93B2FAB17940047B8D8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF1A30C2FB600F400CD2FE8;
+			remoteInfo = "FocusAction for Watch Watch App";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1AF1A3312FB600F600CD2FE8 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				1AF1A32D2FB600F600CD2FE8 /* FocusAction for Watch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1A47F9432FAB17940047B8D8 /* FocusAction.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusAction.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A47F9542FAB17950047B8D8 /* FocusActionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusActionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A47F95E2FAB17950047B8D8 /* FocusActionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusActionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AEC387A2FAEC40400697997 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1AF1A30D2FB600F400CD2FE8 /* FocusAction for Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FocusAction for Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AF1A3192FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FocusAction for Watch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AF1A3232FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FocusAction for Watch Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -42,6 +81,14 @@
 			);
 			target = 1A47F9422FAB17940047B8D8 /* FocusAction */;
 		};
+		1AB31DCC2FB604D70007EBBF /* Exceptions for "FocusAction" folder in "FocusAction for Watch Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FocusSession.swift,
+				TimerMode.swift,
+			);
+			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -49,6 +96,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				1A47F9662FAB17950047B8D8 /* Exceptions for "FocusAction" folder in "FocusAction" target */,
+				1AB31DCC2FB604D70007EBBF /* Exceptions for "FocusAction" folder in "FocusAction for Watch Watch App" target */,
 			);
 			path = FocusAction;
 			sourceTree = "<group>";
@@ -61,6 +109,21 @@
 		1A47F9612FAB17950047B8D8 /* FocusActionUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FocusActionUITests;
+			sourceTree = "<group>";
+		};
+		1AF1A30E2FB600F400CD2FE8 /* FocusAction for Watch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "FocusAction for Watch Watch App";
+			sourceTree = "<group>";
+		};
+		1AF1A31C2FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "FocusAction for Watch Watch AppTests";
+			sourceTree = "<group>";
+		};
+		1AF1A3262FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "FocusAction for Watch Watch AppUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,6 +150,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1AF1A30A2FB600F400CD2FE8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A3162FB600F600CD2FE8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A3202FB600F600CD2FE8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -97,6 +181,9 @@
 				1A47F9452FAB17940047B8D8 /* FocusAction */,
 				1A47F9572FAB17950047B8D8 /* FocusActionTests */,
 				1A47F9612FAB17950047B8D8 /* FocusActionUITests */,
+				1AF1A30E2FB600F400CD2FE8 /* FocusAction for Watch Watch App */,
+				1AF1A31C2FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests */,
+				1AF1A3262FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests */,
 				1A47F9442FAB17940047B8D8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -107,6 +194,9 @@
 				1A47F9432FAB17940047B8D8 /* FocusAction.app */,
 				1A47F9542FAB17950047B8D8 /* FocusActionTests.xctest */,
 				1A47F95E2FAB17950047B8D8 /* FocusActionUITests.xctest */,
+				1AF1A30D2FB600F400CD2FE8 /* FocusAction for Watch Watch App.app */,
+				1AF1A3192FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests.xctest */,
+				1AF1A3232FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,10 +211,12 @@
 				1A47F93F2FAB17940047B8D8 /* Sources */,
 				1A47F9402FAB17940047B8D8 /* Frameworks */,
 				1A47F9412FAB17940047B8D8 /* Resources */,
+				1AF1A3312FB600F600CD2FE8 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				1AF1A32C2FB600F600CD2FE8 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1A47F9452FAB17940047B8D8 /* FocusAction */,
@@ -182,6 +274,74 @@
 			productReference = 1A47F95E2FAB17950047B8D8 /* FocusActionUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AF1A32E2FB600F600CD2FE8 /* Build configuration list for PBXNativeTarget "FocusAction for Watch Watch App" */;
+			buildPhases = (
+				1AF1A3092FB600F400CD2FE8 /* Sources */,
+				1AF1A30A2FB600F400CD2FE8 /* Frameworks */,
+				1AF1A30B2FB600F400CD2FE8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1AF1A30E2FB600F400CD2FE8 /* FocusAction for Watch Watch App */,
+			);
+			name = "FocusAction for Watch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "FocusAction for Watch Watch App";
+			productReference = 1AF1A30D2FB600F400CD2FE8 /* FocusAction for Watch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1AF1A3182FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AF1A3322FB600F600CD2FE8 /* Build configuration list for PBXNativeTarget "FocusAction for Watch Watch AppTests" */;
+			buildPhases = (
+				1AF1A3152FB600F600CD2FE8 /* Sources */,
+				1AF1A3162FB600F600CD2FE8 /* Frameworks */,
+				1AF1A3172FB600F600CD2FE8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1AF1A31B2FB600F600CD2FE8 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1AF1A31C2FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests */,
+			);
+			name = "FocusAction for Watch Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "FocusAction for Watch Watch AppTests";
+			productReference = 1AF1A3192FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1AF1A3222FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AF1A3352FB600F600CD2FE8 /* Build configuration list for PBXNativeTarget "FocusAction for Watch Watch AppUITests" */;
+			buildPhases = (
+				1AF1A31F2FB600F600CD2FE8 /* Sources */,
+				1AF1A3202FB600F600CD2FE8 /* Frameworks */,
+				1AF1A3212FB600F600CD2FE8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1AF1A3252FB600F600CD2FE8 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1AF1A3262FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests */,
+			);
+			name = "FocusAction for Watch Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "FocusAction for Watch Watch AppUITests";
+			productReference = 1AF1A3232FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -189,7 +349,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					1A47F9422FAB17940047B8D8 = {
@@ -202,6 +362,17 @@
 					1A47F95D2FAB17950047B8D8 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 1A47F9422FAB17940047B8D8;
+					};
+					1AF1A30C2FB600F400CD2FE8 = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
+					1AF1A3182FB600F600CD2FE8 = {
+						CreatedOnToolsVersion = 26.4.1;
+						TestTargetID = 1AF1A30C2FB600F400CD2FE8;
+					};
+					1AF1A3222FB600F600CD2FE8 = {
+						CreatedOnToolsVersion = 26.4.1;
+						TestTargetID = 1AF1A30C2FB600F400CD2FE8;
 					};
 				};
 			};
@@ -222,6 +393,9 @@
 				1A47F9422FAB17940047B8D8 /* FocusAction */,
 				1A47F9532FAB17950047B8D8 /* FocusActionTests */,
 				1A47F95D2FAB17950047B8D8 /* FocusActionUITests */,
+				1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */,
+				1AF1A3182FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests */,
+				1AF1A3222FB600F600CD2FE8 /* FocusAction for Watch Watch AppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -243,6 +417,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1A47F95C2FAB17950047B8D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A30B2FB600F400CD2FE8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A3172FB600F600CD2FE8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A3212FB600F600CD2FE8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -273,6 +468,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1AF1A3092FB600F400CD2FE8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A3152FB600F600CD2FE8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF1A31F2FB600F600CD2FE8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -285,6 +501,21 @@
 			isa = PBXTargetDependency;
 			target = 1A47F9422FAB17940047B8D8 /* FocusAction */;
 			targetProxy = 1A47F95F2FAB17950047B8D8 /* PBXContainerItemProxy */;
+		};
+		1AF1A31B2FB600F600CD2FE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
+			targetProxy = 1AF1A31A2FB600F600CD2FE8 /* PBXContainerItemProxy */;
+		};
+		1AF1A3252FB600F600CD2FE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
+			targetProxy = 1AF1A3242FB600F600CD2FE8 /* PBXContainerItemProxy */;
+		};
+		1AF1A32C2FB600F600CD2FE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
+			targetProxy = 1AF1A32B2FB600F600CD2FE8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -304,8 +535,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -338,8 +570,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -562,6 +795,162 @@
 			};
 			name = Release;
 		};
+		1AF1A32F2FB600F600CD2FE8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2552YPAY94;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "FocusAction for Watch";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.keito.FocusAction;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keito.FocusAction.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Debug;
+		};
+		1AF1A3302FB600F600CD2FE8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2552YPAY94;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "FocusAction for Watch";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.keito.FocusAction;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keito.FocusAction.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Release;
+		};
+		1AF1A3332FB600F600CD2FE8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2552YPAY94;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keito.FocusAction-for-Watch-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FocusAction for Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FocusAction for Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Debug;
+		};
+		1AF1A3342FB600F600CD2FE8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2552YPAY94;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keito.FocusAction-for-Watch-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FocusAction for Watch Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FocusAction for Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Release;
+		};
+		1AF1A3362FB600F600CD2FE8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2552YPAY94;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keito.FocusAction-for-Watch-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "FocusAction for Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Debug;
+		};
+		1AF1A3372FB600F600CD2FE8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2552YPAY94;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.keito.FocusAction-for-Watch-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "FocusAction for Watch Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -597,6 +986,33 @@
 			buildConfigurations = (
 				1A47F9702FAB17950047B8D8 /* Debug */,
 				1A47F9712FAB17950047B8D8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AF1A32E2FB600F600CD2FE8 /* Build configuration list for PBXNativeTarget "FocusAction for Watch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF1A32F2FB600F600CD2FE8 /* Debug */,
+				1AF1A3302FB600F600CD2FE8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AF1A3322FB600F600CD2FE8 /* Build configuration list for PBXNativeTarget "FocusAction for Watch Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF1A3332FB600F600CD2FE8 /* Debug */,
+				1AF1A3342FB600F600CD2FE8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AF1A3352FB600F600CD2FE8 /* Build configuration list for PBXNativeTarget "FocusAction for Watch Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF1A3362FB600F600CD2FE8 /* Debug */,
+				1AF1A3372FB600F600CD2FE8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
