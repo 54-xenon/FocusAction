@@ -24,69 +24,112 @@ struct WatchTimerView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
-        VStack(spacing: 12) {
-            // モードインジケーター
-            Text(timerMode.title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            
-            // 円形プログレスゲージ（Watch専用）
-            ZStack {
-                Circle()
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 8)
+        ZStack {
+            // メインの円形プログレスとタイマー表示
+            VStack(spacing: 8) {
+                // モードインジケーター
+                Text(timerMode.title)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
                 
-                Circle()
-                    .trim(from: 0, to: progress)
-                    .stroke(timerMode.color, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 1), value: progress)
+                Spacer()
                 
-                VStack(spacing: 4) {
-                    Text(timeString)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                // 円形プログレスゲージ（Watch専用）
+                ZStack {
+                    Circle()
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 6)
                     
-                    Text(statusText)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .frame(height: 140)
-            
-            // コントロールボタン
-            HStack(spacing: 16) {
-                Button {
-                    toggleTimer()
-                } label: {
-                    Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
-                        .font(.title2)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(timerMode.color)
-                
-                Button {
-                    resetTimer()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.title3)
-                }
-                .buttonStyle(.bordered)
-            }
-            
-            // モード切り替え
-            HStack(spacing: 8) {
-                ForEach(TimerMode.allCases, id: \.self) { mode in
-                    Button {
-                        switchMode(to: mode)
-                    } label: {
-                        Image(systemName: mode.icon)
-                            .font(.caption)
+                    Circle()
+                        .trim(from: 0, to: progress)
+                        .stroke(timerMode.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.linear(duration: 1), value: progress)
+                    
+                    VStack(spacing: 2) {
+                        Text(timeString)
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                        
+                        Text(statusText)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.bordered)
-                    .tint(timerMode == mode ? mode.color : .gray)
+                }
+                .frame(width: 150, height: 150)
+                
+                Spacer()
+                
+                // モード切り替えインジケーター（小さく）
+                HStack(spacing: 4) {
+                    ForEach(TimerMode.allCases, id: \.self) { mode in
+                        Circle()
+                            .fill(timerMode == mode ? mode.color : Color.gray.opacity(0.3))
+                            .frame(width: 6, height: 6)
+                    }
+                }
+                .padding(.bottom, 4)
+            }
+            
+            // 画面の角にボタンを配置（Appleのデザインガイドライン準拠）
+            VStack {
+                HStack {
+                    // 左上: モード切り替えボタン（集中）
+                    Button {
+                        switchMode(to: .focus)
+                    } label: {
+                        Image(systemName: TimerMode.focus.icon)
+                            .font(.system(size: 20))
+                            .foregroundStyle(timerMode == .focus ? TimerMode.focus.color : .secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 44, height: 44)
+                    
+                    Spacer()
+                    
+                    // 右上: モード切り替えボタン（休憩）
+                    Button {
+                        switchMode(to: .shortBreak)
+                    } label: {
+                        Image(systemName: TimerMode.shortBreak.icon)
+                            .font(.system(size: 20))
+                            .foregroundStyle(timerMode == .shortBreak ? TimerMode.shortBreak.color : .secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 44, height: 44)
+                }
+                
+                Spacer()
+                
+                HStack {
+                    // 左下: リセットボタン
+                    Button {
+                        resetTimer()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 44, height: 44)
+                    
+                    Spacer()
+                    
+                    // 右下: 再生/一時停止ボタン（プライマリー）
+                    Button {
+                        toggleTimer()
+                    } label: {
+                        Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: 44, height: 44)
+                    .background(timerMode.color)
+                    .clipShape(Circle())
                 }
             }
+            .padding(8)
         }
-        .padding()
         .sensoryFeedback(.impact, trigger: feedbackTrigger)  // watchOS 10+の触覚フィードバック
         .onReceive(timer) { _ in
             if isTimerRunning && timeRemaining > 0 {
@@ -112,7 +155,7 @@ struct WatchTimerView: View {
     
     private var statusText: String {
         if isTimerRunning {
-            return timerMode == .focus ? "集中中" : "休憩中"
+            return timerMode == .focus ? "集中" : "休憩中"
         } else if timeRemaining <= 0 {
             return "完了"
         } else {
