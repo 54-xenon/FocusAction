@@ -23,7 +23,7 @@ struct ControlView: View {
             // History
             HistoryView()
                 .tabItem {
-                    Label("History", systemImage: "clock.arrow.circlepath")
+                    Label("History", systemImage: "chart.bar")
                 }
             // settings
             SettingView()
