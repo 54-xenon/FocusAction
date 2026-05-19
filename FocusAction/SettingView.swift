@@ -100,35 +100,6 @@ struct SettingView: View {
                         Text("ダークモードはシステム設定に従います。")
                     }
                     
-                    // 機能説明セクション
-                    Section {
-                        VStack(alignment: .leading, spacing: 12) {
-                            FeatureRow(
-                                icon: "clock.arrow.circlepath",
-                                title: "バックグラウンド対応",
-                                description: "アプリをバックグラウンドにしてもタイマーは継続します"
-                            )
-                            
-                            Divider()
-                            
-                            FeatureRow(
-                                icon: "bell.badge.fill",
-                                title: "通知機能",
-                                description: "タイマー完了時に通知でお知らせします"
-                            )
-                            
-                            Divider()
-                            
-                            FeatureRow(
-                                icon: "moon.stars.fill",
-                                title: "ダークモード",
-                                description: "システム設定に応じて自動的に切り替わります"
-                            )
-                        }
-                        .padding(.vertical, 8)
-                    } header: {
-                        Text("機能")
-                    }
                 }
                 .scrollContentBackground(.hidden)
             }

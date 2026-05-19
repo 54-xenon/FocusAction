@@ -219,14 +219,12 @@ struct WatchTimerView: View {
     /// セッションをSwiftDataに保存する
     private func saveSession(isCompleted: Bool) {
         guard let startDate = sessionStartDate else {
-            print("⚠️ [Watch] sessionStartDateがnilのため保存をスキップ")
             return
         }
         
         // 実際に経過した時間を計算
         let elapsedTime = totalTime - timeRemaining
         
-        print("💾 [Watch] セッション保存: タイプ=\(timerMode.rawValue), 経過時間=\(elapsedTime)秒")
         
         // FocusSessionを作成
         let session = FocusSession(
@@ -243,9 +241,9 @@ struct WatchTimerView: View {
         // 保存を試行
         do {
             try modelContext.save()
-            print("✅ [Watch] セッションを保存しました: \(session.formattedDuration)")
+            print("[Watch] セッションを保存しました: \(session.formattedDuration)")
         } catch {
-            print("❌ [Watch] セッション保存エラー: \(error.localizedDescription)")
+            print("[Watch] セッション保存エラー: \(error.localizedDescription)")
         }
         
         // 開始時刻をリセット

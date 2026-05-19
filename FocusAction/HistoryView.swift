@@ -253,7 +253,7 @@ struct HistoryView: View {
         do {
             try modelContext.save()
         } catch {
-            print("❌ セッション削除エラー: \(error.localizedDescription)")
+            print("セッション削除エラー: \(error.localizedDescription)")
         }
     }
 }

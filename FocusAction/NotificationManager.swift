@@ -32,14 +32,14 @@ class NotificationManager: ObservableObject {
             isAuthorized = granted
             
             if granted {
-                print("✅ 通知の権限が許可されました")
+                print("通知の権限が許可されました")
             } else {
-                print("⚠️ 通知の権限が拒否されました")
+                print("通知の権限が拒否されました")
             }
             
             return granted
         } catch {
-            print("❌ 通知権限リクエストエラー: \(error.localizedDescription)")
+            print("通知権限リクエストエラー: \(error.localizedDescription)")
             return false
         }
     }
@@ -81,9 +81,9 @@ class NotificationManager: ObservableObject {
         // 通知をスケジュール
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("❌ 通知スケジュールエラー: \(error.localizedDescription)")
+                print("通知スケジュールエラー: \(error.localizedDescription)")
             } else {
-                print("✅ 通知をスケジュールしました: \(timeInterval)秒後")
+                print("通知をスケジュールしました: \(timeInterval)秒後")
             }
         }
     }
@@ -117,9 +117,9 @@ class NotificationManager: ObservableObject {
         
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                print("❌ テスト通知エラー: \(error.localizedDescription)")
+                print("テスト通知エラー: \(error.localizedDescription)")
             } else {
-                print("✅ テスト通知を送信しました（5秒後）")
+                print("テスト通知を送信しました（5秒後）")
             }
         }
     }

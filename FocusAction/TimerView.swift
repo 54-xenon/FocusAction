@@ -159,7 +159,6 @@ struct TimerView: View {
                 timeRemaining -= 1
             } else if isTimerRunning && timeRemaining <= 0 {
                 // 残り時間がゼロになるとタイマーを止める
-                print("⏰ タイマー完了検知: モード = \(timerMode.rawValue)")
                 timerCompleted()
             }
         }
@@ -244,10 +243,9 @@ struct TimerView: View {
     }
     
     private func switchMode(to mode: TimerMode, animated: Bool = true) {
-        print("📝 switchMode呼び出し: \(timerMode.rawValue) → \(mode.rawValue)")
+        print("switchMode呼び出し: \(timerMode.rawValue) → \(mode.rawValue)")
         
         guard mode != timerMode else {
-            print("⚠️ 同じモードのため切り替えスキップ")
             return
         }
         
@@ -271,11 +269,10 @@ struct TimerView: View {
             changes()
         }
         
-        print("✅ モード切り替え完了: \(timerMode.rawValue), 残り時間: \(timeRemaining)秒")
     }
     
     private func timerCompleted() {
-        print("🎯 timerCompleted() 開始: モード = \(timerMode.rawValue), timeRemaining = \(timeRemaining)")
+        print("timerCompleted() 開始: モード = \(timerMode.rawValue), timeRemaining = \(timeRemaining)")
         
         // タイマーを停止
         isTimerRunning = false
@@ -284,17 +281,14 @@ struct TimerView: View {
         notificationManager.cancelAllNotifications()
         
         // セッションを保存
-        print("💾 セッション保存開始...")
         saveSession(isCompleted: true)
         
         // 次のモードを決定
         let nextMode: TimerMode = (timerMode == .focus) ? .shortBreak : .focus
-        print("🔄 \(timerMode.rawValue) → \(nextMode.rawValue) に切り替え")
         
         // モード切り替え（アニメーションなしで即座に実行）
         DispatchQueue.main.async {
             self.switchMode(to: nextMode, animated: false)
-            print("✅ timerCompleted() 完了")
         }
     }
     
@@ -325,14 +319,12 @@ struct TimerView: View {
     /// セッションをSwiftDataに保存する
     private func saveSession(isCompleted: Bool) {
         guard let startDate = sessionStartDate else {
-            print("⚠️ sessionStartDateがnilのため保存をスキップ")
             return
         }
         
         // 実際に経過した時間を計算
         let elapsedTime = totalTime - timeRemaining
         
-        print("💾 セッション保存: タイプ=\(timerMode.rawValue), 経過時間=\(elapsedTime)秒")
         
         // FocusSessionを作成
         let session = FocusSession(
@@ -349,9 +341,9 @@ struct TimerView: View {
         // 保存を試行
         do {
             try modelContext.save()
-            print("✅ セッションを保存しました: \(session.formattedDuration)")
+            print("セッションを保存しました: \(session.formattedDuration)")
         } catch {
-            print("❌ セッション保存エラー: \(error.localizedDescription)")
+            print("セッション保存エラー: \(error.localizedDescription)")
         }
         
         // 開始時刻をリセット

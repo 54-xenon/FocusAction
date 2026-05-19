@@ -69,7 +69,7 @@ final class BackgroundTimerManager: ObservableObject {
     /// バックグラウンドに入った時刻を記録
     private func didEnterBackground() {
         backgroundDate = Date()
-        print("📱 バックグラウンドに入りました: \(backgroundDate!)")
+        print("バックグラウンドに入りました: \(backgroundDate!)")
     }
     
     /// フォアグラウンドに戻った時の経過時間を計算
@@ -77,7 +77,7 @@ final class BackgroundTimerManager: ObservableObject {
         guard let backgroundDate = backgroundDate else { return }
         
         let elapsed = Date().timeIntervalSince(backgroundDate)
-        print("📱 フォアグラウンドに戻りました。経過時間: \(Int(elapsed))秒")
+        print("フォアグラウンドに戻りました。経過時間: \(Int(elapsed))秒")
         
         // 経過時間を通知（Viewで受け取る）
         NotificationCenter.default.post(
