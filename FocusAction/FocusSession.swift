@@ -40,7 +40,7 @@ final class FocusSession {
     /// 作成日時（ソート用）
     var createdAt: Date
     
-    // MARK: - Initializer
+    // MARK: - イニシャライザ
     
     init(
         id: UUID = UUID(),

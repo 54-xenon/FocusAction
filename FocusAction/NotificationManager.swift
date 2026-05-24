@@ -91,7 +91,7 @@ class NotificationManager: ObservableObject {
     /// 全ての通知をキャンセル
     func cancelAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        print("🗑️ 全ての通知をキャンセルしました")
+        print("全ての通知をキャンセルしました")
     }
     
     /// バッジをクリア

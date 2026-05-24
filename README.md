@@ -38,11 +38,22 @@ UIがもうちょっと固まってきたら追加します.
 
 ```
 FocusAction/
-├── FocusActionApp.swift    # アプリのエントリーポイント
-├── ControlView.swift        # タブビューのメインコントローラー
-├── TimerView.swift          # タイマー画面のメインビュー
-├── HistoryView.swift        # 履歴画面（実装予定）
-└── SettingView.swift        # 設定画面（実装予定）
+├── iOS App/
+│   ├── FocusActionApp.swift
+│   ├── ControlView.swift
+│   ├── TimerView.swift (iPad対応済み)
+│   ├── HistoryView.swift
+│   ├── SettingView.swift
+|   ├── TimerMode.swift
+|   ├── FocusSession.swift (SwiftData)
+|   |── NotificationManager.swift
+│   └── その他のiOS専用ファイル
+│
+├── Watch App/
+    ├── FocusActionWatchApp.swift
+    ├── WatchTimerView.swift
+    └── Assets.xcassets (Watch用)
+
 ```
 
 ### 主要コンポーネント
@@ -61,7 +72,7 @@ FocusAction/
 - 3つのタブ（Timer、History、Settings）を管理
 - アプリ全体のナビゲーション
 
-## 🛠️ 技術スタック
+##  技術スタック
 
 - **言語**: Swift
 - **フレームワーク**: SwiftUI
@@ -121,7 +132,6 @@ open FocusAction.xcodeproj
 - タッチやポインタのインタラクションにリアルタイムで反応
 - 流動的なアニメーションと遷移
 
-これにより、モダンで没入感のあるユーザー体験を提供しています。
 
 
 ##  コントリビューション
