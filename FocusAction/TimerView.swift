@@ -14,12 +14,6 @@ struct TimerView: View {
     // SwiftDataのモデルコンテキストを取得
     @Environment(\.modelContext) private var modelContext
     
-    // 環境変数でダークモード検知
-    @Environment(\.colorScheme) var colorScheme
-    
-    // デバイスタイプを検知（iPad対応）
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
     // State関数 -> Viewに対して状態をもたせる(UIに動きをつけることができる)
     @State private var isTimerRunning = false   // タイマーが動いているかどうか(bool: false -> 動いていない)
     @State private var timeRemaining: TimeInterval = 25 * 60 // 25分(残り時間)
@@ -36,121 +30,36 @@ struct TimerView: View {
         // everyプロパティを1にすることで、1秒おきに設定している
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
-    // UI部分 -> 実際に表示される文字や円形んプログレスバーを宣言的なコードで記述する
+    // UI部分 -> デバイスタイプに応じて適切なUIを表示
     var body: some View {
-        ZStack {
-            // 背景をダークモード対応
-            (colorScheme == .dark ? Color.black : Color.white)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 40) {
-                Spacer()
-                
-                // タイマーモード表示
-                Text(timerMode.title)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
-                
-                // 円形プログレスバー with Liquid Glass
-                ZStack {
-                    // 背景の円
-                    Circle()
-                        .stroke(
-                            Color.gray.opacity(0.15),
-                            lineWidth: isLargeDevice ? 24 : 20
-                        )
-                    
-                    // プログレスを示す円（青系）
-                    Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(
-                            timerMode.color,
-                            style: StrokeStyle(
-                                lineWidth: isLargeDevice ? 24 : 20,
-                                lineCap: .round
-                            )
-                        )
-                        .rotationEffect(.degrees(-90))
-                        .animation(.linear(duration: 1), value: progress)
-                    
-                    // 中央のタイマー表示 with Liquid Glass
-                    VStack(spacing: isLargeDevice ? 20 : 16) {
-                        Text(timeString)
-                            .font(.system(
-                                size: isLargeDevice ? 72 : 56,
-                                weight: .bold,
-                                design: .rounded
-                            ))
-                            .foregroundStyle(.primary)
-                        
-                        Text(statusText)
-                            .font(isLargeDevice ? .title3 : .subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(isLargeDevice ? 80 : 60)
-                }
-                .frame(width: timerCircleSize, height: timerCircleSize)
-                
-                Spacer()
-                
-                // コントロールボタン
-                GlassEffectContainer(spacing: 20) {
-                    HStack(spacing: 20) {
-                        // 再生/一時停止ボタン
-                        Button(action: toggleTimer) {
-                            Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
-                                .font(.system(size: isLargeDevice ? 28 : 24))
-                                .foregroundStyle(timerMode.color)
-                                .frame(
-                                    width: isLargeDevice ? 80 : 70,
-                                    height: isLargeDevice ? 80 : 70
-                                )
-                        }
-                        .glassEffect(.regular.tint(timerMode.color.opacity(0.2)).interactive(), in: .circle)
-                        
-                        // リセットボタン
-                        Button(action: resetTimer) {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.system(size: isLargeDevice ? 28 : 24))
-                                .foregroundStyle(.secondary)
-                                .frame(
-                                    width: isLargeDevice ? 80 : 70,
-                                    height: isLargeDevice ? 80 : 70
-                                )
-                        }
-                        .glassEffect(.regular.tint(.gray.opacity(0.1)).interactive(), in: .circle)
-                    }
-                }
-                
-                // モード切り替えボタン
-                GlassEffectContainer(spacing: isLargeDevice ? 16 : 12) {
-                    HStack(spacing: isLargeDevice ? 16 : 12) {
-                        ForEach(TimerMode.allCases, id: \.self) { mode in
-                            Button(action: { switchMode(to: mode, animated: true) }) {
-                                VStack(spacing: isLargeDevice ? 12 : 8) {
-                                    Image(systemName: mode.icon)
-                                        .font(.system(size: isLargeDevice ? 32 : 24))
-                                    Text(mode.rawValue)
-                                        .font(isLargeDevice ? .body : .caption)
-                                        .fontWeight(.semibold)
-                                }
-                                .foregroundStyle(timerMode == mode ? mode.color : .secondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, isLargeDevice ? 28 : 20)
-                            }
-                            .glassEffect(
-                                .regular.tint(timerMode == mode ? mode.color.opacity(0.15) : .gray.opacity(0.05)).interactive(),
-                                in: .rect(cornerRadius: isLargeDevice ? 24 : 20)
-                            )
-                        }
-                    }
-                }
-                .padding(.horizontal, isLargeDevice ? 40 : 20)
-                
-                Spacer()
+        Group {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                // iPad用UI
+                TimerViewIPad(
+                    isTimerRunning: $isTimerRunning,
+                    timeRemaining: $timeRemaining,
+                    timerMode: $timerMode,
+                    progress: progress,
+                    timeString: timeString,
+                    statusText: statusText,
+                    onToggleTimer: toggleTimer,
+                    onResetTimer: resetTimer,
+                    onSwitchMode: { mode in switchMode(to: mode, animated: true) }
+                )
+            } else {
+                // iPhone用UI
+                TimerViewIPhone(
+                    isTimerRunning: $isTimerRunning,
+                    timeRemaining: $timeRemaining,
+                    timerMode: $timerMode,
+                    progress: progress,
+                    timeString: timeString,
+                    statusText: statusText,
+                    onToggleTimer: toggleTimer,
+                    onResetTimer: resetTimer,
+                    onSwitchMode: { mode in switchMode(to: mode, animated: true) }
+                )
             }
-            .padding()
         }
         // タイマー処理で、1秒ずず値を減らしている
         .onReceive(timer) { _ in
@@ -177,16 +86,6 @@ struct TimerView: View {
     }
     
     // MARK: - Computed Properties
-    
-    /// iPadなど大画面デバイスかどうかを判定
-    private var isLargeDevice: Bool {
-        horizontalSizeClass == .regular
-    }
-    
-    /// デバイスに応じた円形プログレスバーのサイズ
-    private var timerCircleSize: CGFloat {
-        isLargeDevice ? 420 : 320
-    }
     
     private var progress: CGFloat {
         guard totalTime > 0 else { return 0 }
