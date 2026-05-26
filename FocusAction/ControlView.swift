@@ -31,5 +31,7 @@ struct ControlView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
         }
+        // iPadOSでサイドバーを有効化するため
+        .tabViewStyle(.sidebarAdaptable)
     }
 }
