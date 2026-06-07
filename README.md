@@ -64,7 +64,7 @@ FocusAction/
 - Combineフレームワークの`Timer.publish`で1秒ごとに更新
 - Liquid Glassエフェクトを活用したモダンなUI
 
-#### TimerMode (Enum)
+#### TimerMode
 - 集中モードと休憩モードを定義
 - 各モードの時間、色、アイコンを管理
 
@@ -82,7 +82,7 @@ FocusAction/
 
 ##  必要要件
 
-- iOS 15.0以降
+- iOS/iPadOS 26.0以降
 - Xcode 14.0以降
 - Swift 5.7以降
 
