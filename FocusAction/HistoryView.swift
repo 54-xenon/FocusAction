@@ -2,49 +2,37 @@
 //  HistoryView.swift
 //  FocusAction
 //
-//
 
 import SwiftUI
 import SwiftData
 
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
-    
-    // SwiftDataから全てのセッションを取得（新しい順）
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    // 統計表示用（フィルタなし全件）
     @Query(sort: \FocusSession.startDate, order: .reverse)
     private var allSessions: [FocusSession]
-    
+
     @State private var selectedFilter: FilterOption = .all
     @State private var showDeleteAlert = false
     @State private var sessionToDelete: FocusSession?
-    
+
     var body: some View {
         Group {
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                // iPad用UI
+            if horizontalSizeClass == .regular {
                 HistoryViewIPad(
                     allSessions: allSessions,
                     selectedFilter: selectedFilter,
-                    onFilterChange: { filter in
-                        selectedFilter = filter
-                    },
-                    onDeleteSession: { session in
-                        sessionToDelete = session
-                        showDeleteAlert = true
-                    }
+                    onFilterChange: { selectedFilter = $0 },
+                    onDeleteSession: { sessionToDelete = $0; showDeleteAlert = true }
                 )
             } else {
-                // iPhone用UI
                 HistoryViewIPhone(
                     allSessions: allSessions,
                     selectedFilter: selectedFilter,
-                    onFilterChange: { filter in
-                        selectedFilter = filter
-                    },
-                    onDeleteSession: { session in
-                        sessionToDelete = session
-                        showDeleteAlert = true
-                    }
+                    onFilterChange: { selectedFilter = $0 },
+                    onDeleteSession: { sessionToDelete = $0; showDeleteAlert = true }
                 )
             }
         }
@@ -59,15 +47,15 @@ struct HistoryView: View {
             Text("このセッションを削除してもよろしいですか？")
         }
     }
-    
-    // MARK: - Helper Functions
-    
+
     private func deleteSession(_ session: FocusSession) {
         modelContext.delete(session)
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("セッション削除エラー: \(error.localizedDescription)")
+            #endif
         }
     }
 }
@@ -81,13 +69,13 @@ struct StatBox: View {
     let unit: String
     let icon: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.system(size: 24))
                 .foregroundStyle(color)
-            
+
             HStack(alignment: .lastTextBaseline, spacing: 2) {
                 Text(value)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
@@ -96,7 +84,7 @@ struct StatBox: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -109,28 +97,26 @@ struct StatBox: View {
 struct SessionRow: View {
     let session: FocusSession
     let onDelete: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 16) {
-            // アイコン
             ZStack {
                 Circle()
                     .fill(sessionColor.opacity(0.15))
                     .frame(width: 50, height: 50)
-                
+
                 Image(systemName: session.sessionType.icon)
                     .font(.system(size: 20))
                     .foregroundStyle(sessionColor)
             }
-            
-            // セッション情報
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(session.sessionType.rawValue)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.primary)
-                    
+
                     if !session.isCompleted {
                         Text("未完了")
                             .font(.caption2)
@@ -142,20 +128,19 @@ struct SessionRow: View {
                             .clipShape(Capsule())
                     }
                 }
-                
+
                 Text(session.formattedTimeRange)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             Spacer()
-            
-            // 時間表示
+
             VStack(alignment: .trailing, spacing: 4) {
                 Text(session.formattedDuration)
                     .font(.headline)
                     .foregroundStyle(.primary)
-                
+
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .font(.caption)
@@ -167,7 +152,7 @@ struct SessionRow: View {
         .background(Color.gray.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
-    
+
     private var sessionColor: Color {
         switch session.sessionType {
         case .focus: return .blue
@@ -183,6 +168,16 @@ enum FilterOption: String, CaseIterable {
     case focus = "集中"
     case shortBreak = "休憩"
     case completed = "完了済み"
+
+    // SwiftData の @Query に渡す Predicate
+    var predicate: Predicate<FocusSession>? {
+        switch self {
+        case .all:       return nil
+        case .focus:     return FocusSession.focusSessionsPredicate()
+        case .shortBreak: return FocusSession.predicate(for: .shortBreak)
+        case .completed: return FocusSession.completedSessionsPredicate()
+        }
+    }
 }
 
 // MARK: - Preview

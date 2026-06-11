@@ -88,6 +88,7 @@
 			membershipExceptions = (
 				FocusSession.swift,
 				TimerMode.swift,
+				TimerViewModel.swift,
 			);
 			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
 		};

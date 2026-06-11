@@ -8,7 +8,7 @@ import SwiftUI
 
 struct SettingView: View {
     @Environment(\.colorScheme) var colorScheme
-    @StateObject private var notificationManager = NotificationManager.shared
+    @ObservedObject private var notificationManager = NotificationManager.shared
     @State private var showTestAlert = false
     
     var body: some View {
@@ -78,7 +78,7 @@ struct SettingView: View {
                             
                             Spacer()
                             
-                            Text("1.0.0")
+                            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")
                                 .foregroundStyle(.secondary)
                         }
                         

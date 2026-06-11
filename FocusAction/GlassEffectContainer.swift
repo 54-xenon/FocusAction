@@ -2,23 +2,6 @@
 //  GlassEffectContainer.swift
 //  FocusAction
 //
+//  このファイルは不要になりました。
+//  各 View で直接 VStack / HStack を使うように変更したため、Xcode から削除できます。
 //
-
-import SwiftUI
-
-/// ガラスエフェクトコンテナ - 子要素をグループ化するためのビューコンテナ
-struct GlassEffectContainer<Content: View>: View {
-    let spacing: CGFloat
-    let content: () -> Content
-    
-    init(spacing: CGFloat = 0, @ViewBuilder content: @escaping () -> Content) {
-        self.spacing = spacing
-        self.content = content
-    }
-    
-    var body: some View {
-        VStack(spacing: spacing) {
-            content()
-        }
-    }
-}
