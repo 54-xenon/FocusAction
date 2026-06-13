@@ -10,7 +10,6 @@ import SwiftData
 
 struct HistoryViewIPad: View {
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     // フィルタ済みリスト（SwiftData側でフィルタ）
     @Query private var filteredSessions: [FocusSession]

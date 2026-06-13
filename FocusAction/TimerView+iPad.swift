@@ -9,12 +9,7 @@ import SwiftUI
 
 struct TimerViewIPad: View {
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @ObservedObject var viewModel: TimerViewModel
-
-    private var isCompactLayout: Bool {
-        horizontalSizeClass == .compact
-    }
 
     var body: some View {
         ZStack {
