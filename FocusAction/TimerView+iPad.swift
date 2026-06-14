@@ -17,61 +17,47 @@ struct TimerViewIPad: View {
                 .ignoresSafeArea()
 
             GeometryReader { geometry in
-                Group {
-                    if geometry.size.width > geometry.size.height && geometry.size.width > 800 {
-                        landscapeLayout
-                    } else {
-                        portraitLayout
-                    }
+                let isLandscape = geometry.size.width > geometry.size.height && geometry.size.width > 800
+                let circleSize: CGFloat = isLandscape ? 440 : 360
+                let buttonSize: CGFloat = isLandscape ? 90 : 80
+                let titleFont: Font = isLandscape ? .largeTitle : .title
+                let padding: CGFloat = isLandscape ? 60 : 30
+
+                VStack(spacing: 40) {
+                    Spacer()
+                    modeMenu(font: titleFont)
+                    timerCircle(size: circleSize)
+                    Spacer()
+                    controlButtons(size: buttonSize)
+                    Spacer()
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(padding)
             }
         }
-    }
-
-    // MARK: - Layouts
-
-    private var landscapeLayout: some View {
-        HStack(spacing: 60) {
-            VStack(spacing: 40) {
-                Spacer()
-                Text(viewModel.timerMode.title)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.primary)
-                timerCircle(size: 480)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity)
-
-            VStack(spacing: 50) {
-                Spacer()
-                controlButtons(size: 90)
-                modeSwitcher(isVertical: true)
-                Spacer()
-            }
-            .frame(width: 450)
-        }
-        .padding(60)
-    }
-
-    private var portraitLayout: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            Text(viewModel.timerMode.title)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundStyle(.primary)
-            timerCircle(size: 360)
-            Spacer()
-            controlButtons(size: 80)
-            modeSwitcher(isVertical: false)
-                .padding(.horizontal, 30)
-            Spacer()
-        }
-        .padding(30)
     }
 
     // MARK: - Components
+
+    private func modeMenu(font: Font) -> some View {
+        Menu {
+            ForEach(TimerMode.allCases, id: \.self) { mode in
+                Button(action: { viewModel.switchMode(to: mode) }) {
+                    Label(mode.rawValue, systemImage: mode.icon)
+                }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Text(viewModel.timerMode.title)
+                    .font(font)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.primary)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
 
     private func timerCircle(size: CGFloat) -> some View {
         let lineWidth = size / 17
@@ -121,56 +107,6 @@ struct TimerViewIPad: View {
                     .frame(width: size, height: size)
             }
             .glassEffect(.regular.tint(.gray.opacity(0.1)).interactive(), in: .circle)
-        }
-    }
-
-    private func modeSwitcher(isVertical: Bool) -> some View {
-        Group {
-            if isVertical {
-                VStack(spacing: 16) {
-                    ForEach(TimerMode.allCases, id: \.self) { mode in
-                        Button(action: { viewModel.switchMode(to: mode) }) {
-                            HStack(spacing: 16) {
-                                Image(systemName: mode.icon)
-                                    .font(.system(size: 28))
-                                    .frame(width: 40)
-                                Text(mode.rawValue)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                            }
-                            .foregroundStyle(viewModel.timerMode == mode ? mode.color : .secondary)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 18)
-                        }
-                        .glassEffect(
-                            .regular.tint(viewModel.timerMode == mode ? mode.color.opacity(0.15) : .gray.opacity(0.05)).interactive(),
-                            in: .rect(cornerRadius: 18)
-                        )
-                    }
-                }
-            } else {
-                HStack(spacing: 12) {
-                    ForEach(TimerMode.allCases, id: \.self) { mode in
-                        Button(action: { viewModel.switchMode(to: mode) }) {
-                            VStack(spacing: 8) {
-                                Image(systemName: mode.icon)
-                                    .font(.system(size: 24))
-                                Text(mode.rawValue)
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundStyle(viewModel.timerMode == mode ? mode.color : .secondary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 20)
-                        }
-                        .glassEffect(
-                            .regular.tint(viewModel.timerMode == mode ? mode.color.opacity(0.15) : .gray.opacity(0.05)).interactive(),
-                            in: .rect(cornerRadius: 20)
-                        )
-                    }
-                }
-            }
         }
     }
 }
