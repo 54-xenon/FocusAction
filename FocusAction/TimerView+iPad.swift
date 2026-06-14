@@ -24,7 +24,7 @@ struct TimerViewIPad: View {
                 let padding: CGFloat = isLandscape ? 60 : 30
 
                 VStack(spacing: 40) {
-                    Spacer()
+//                    Spacer()
                     modeMenu(font: titleFont)
                     timerCircle(size: circleSize)
                     Spacer()

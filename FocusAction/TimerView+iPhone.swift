@@ -17,7 +17,7 @@ struct TimerViewIPhone: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 40) {
-                Spacer()
+//                Spacer()
 
                 modeMenu
 
