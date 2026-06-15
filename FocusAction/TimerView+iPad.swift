@@ -18,13 +18,14 @@ struct TimerViewIPad: View {
 
             GeometryReader { geometry in
                 let isLandscape = geometry.size.width > geometry.size.height && geometry.size.width > 800
-                let circleSize: CGFloat = isLandscape ? 440 : 360
-                let buttonSize: CGFloat = isLandscape ? 90 : 80
+                let minDimension = min(geometry.size.width, geometry.size.height)
+                let circleSize = minDimension * 0.45
+                let buttonSize = minDimension * 0.08
+                let spacing = minDimension * 0.04
                 let titleFont: Font = isLandscape ? .largeTitle : .title
                 let padding: CGFloat = isLandscape ? 60 : 30
 
-                VStack(spacing: 40) {
-//                    Spacer()
+                VStack(spacing: spacing) {
                     modeMenu(font: titleFont)
                     timerCircle(size: circleSize)
                     Spacer()
