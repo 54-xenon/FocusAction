@@ -10,6 +10,12 @@ import SwiftData
 
 @main
 struct FocusActionApp: App {
+    init() {
+        #if DEBUG
+        PersistenceController.logCloudKitAccountStatus()
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             ControlView()
