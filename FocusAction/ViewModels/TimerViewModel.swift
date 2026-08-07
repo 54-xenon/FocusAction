@@ -20,7 +20,7 @@ final class TimerViewModel: ObservableObject {
 
     var modelContext: ModelContext?
 
-    private var sessionStartDate: Date?
+    private(set) var sessionStartDate: Date?
     private var backgroundDate: Date?
     private var timerCancellable: AnyCancellable?
     private let timerPublisher = Timer.publish(every: 1, on: .main, in: .common)
@@ -32,6 +32,7 @@ final class TimerViewModel: ObservableObject {
     init() {
         totalTime = TimerMode.focus.duration
         timeRemaining = TimerMode.focus.duration
+        TimerSyncManager.shared.start(with: self)
     }
 
     // MARK: - Computed Properties
@@ -74,6 +75,9 @@ final class TimerViewModel: ObservableObject {
             notificationManager.cancelAllNotifications()
             #endif
         }
+        #if os(iOS)
+        TimerSyncManager.shared.sendState(self)
+        #endif
     }
 
     func resetTimer() {
@@ -85,6 +89,7 @@ final class TimerViewModel: ObservableObject {
         }
         #if os(iOS)
         notificationManager.cancelAllNotifications()
+        TimerSyncManager.shared.sendState(self)
         #endif
     }
 
@@ -108,6 +113,9 @@ final class TimerViewModel: ObservableObject {
         } else {
             changes()
         }
+        #if os(iOS)
+        TimerSyncManager.shared.sendState(self)
+        #endif
     }
 
     // MARK: - Scene Phase (iOS / watchOS 共通)
@@ -130,6 +138,33 @@ final class TimerViewModel: ObservableObject {
             }
         @unknown default:
             break
+        }
+    }
+
+    // MARK: - Watch Sync
+
+    /// iPhone から WatchConnectivity 経由で届いた最新のタイマー状態を反映する。
+    func applyRemoteState(_ state: TimerSyncState) {
+        stopTimerSubscription()
+
+        timerMode = state.timerMode
+        totalTime = state.totalTime
+        sessionStartDate = state.sessionStartDate
+
+        if state.isTimerRunning {
+            let elapsedSinceReference = Date().timeIntervalSince(state.referenceDate)
+            let adjustedRemaining = max(0, state.timeRemaining - elapsedSinceReference)
+            if adjustedRemaining <= 0 {
+                isTimerRunning = false
+                timeRemaining = 0
+            } else {
+                timeRemaining = adjustedRemaining
+                isTimerRunning = true
+                startTimerSubscription()
+            }
+        } else {
+            isTimerRunning = false
+            timeRemaining = state.timeRemaining
         }
     }
 
