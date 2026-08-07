@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1AE502432FC520BB0006790F /* 簡易仕様書サンプル.md in Resources */ = {isa = PBXBuildFile; fileRef = 1AE502422FC520A70006790F /* 簡易仕様書サンプル.md */; };
 		1AEC387B2FAEC40400697997 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1AEC387A2FAEC40400697997 /* README.md */; };
 		1AF1A32D2FB600F600CD2FE8 /* FocusAction for Watch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1AF1A30D2FB600F400CD2FE8 /* FocusAction for Watch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -68,7 +67,6 @@
 		1A47F9432FAB17940047B8D8 /* FocusAction.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusAction.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A47F9542FAB17950047B8D8 /* FocusActionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusActionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A47F95E2FAB17950047B8D8 /* FocusActionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FocusActionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		1AE502422FC520A70006790F /* 簡易仕様書サンプル.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "簡易仕様書サンプル.md"; sourceTree = "<group>"; };
 		1AEC387A2FAEC40400697997 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1AF1A30D2FB600F400CD2FE8 /* FocusAction for Watch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FocusAction for Watch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF1A3192FB600F600CD2FE8 /* FocusAction for Watch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "FocusAction for Watch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,9 +84,10 @@
 		1AB31DCC2FB604D70007EBBF /* Exceptions for "FocusAction" folder in "FocusAction for Watch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				FocusSession.swift,
-				TimerMode.swift,
-				TimerViewModel.swift,
+				Models/FocusSession.swift,
+				Models/TimerMode.swift,
+				Services/TimerSyncManager.swift,
+				ViewModels/TimerViewModel.swift,
 			);
 			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
 		};
@@ -180,7 +179,6 @@
 		1A47F93A2FAB17940047B8D8 = {
 			isa = PBXGroup;
 			children = (
-				1AE502422FC520A70006790F /* 簡易仕様書サンプル.md */,
 				1AEC387A2FAEC40400697997 /* README.md */,
 				1A47F9452FAB17940047B8D8 /* FocusAction */,
 				1A47F9572FAB17950047B8D8 /* FocusActionTests */,
@@ -409,7 +407,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1AE502432FC520BB0006790F /* 簡易仕様書サンプル.md in Resources */,
 				1AEC387B2FAEC40400697997 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
