@@ -22,8 +22,8 @@ final class FocusSession {
 
     init(
         id: UUID = UUID(),
-        startDate: Date,
-        duration: TimeInterval,
+        startDate: Date = Date(),
+        duration: TimeInterval = 0,
         sessionType: SessionType = .focus,
         tags: [String] = [],
         isCompleted: Bool = true,
