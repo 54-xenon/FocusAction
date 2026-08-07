@@ -12,8 +12,8 @@ import SwiftData
 struct FocusActionApp: App {
     var body: some Scene {
         WindowGroup {
-            ControlView() 
+            ControlView()
         }
-        .modelContainer(for: FocusSession.self)
+        .modelContainer(PersistenceController.sharedModelContainer)
     }
 }

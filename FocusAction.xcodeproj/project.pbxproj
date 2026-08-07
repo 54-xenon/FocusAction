@@ -93,6 +93,7 @@
 			membershipExceptions = (
 				Models/FocusSession.swift,
 				Models/TimerMode.swift,
+				Services/PersistenceController.swift,
 				Services/TimerSyncManager.swift,
 				ViewModels/TimerViewModel.swift,
 			);
