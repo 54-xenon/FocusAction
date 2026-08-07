@@ -14,6 +14,6 @@ struct FocusAction_for_Watch_Watch_AppApp: App {
         WindowGroup {
             WatchTimerView()
         }
-        .modelContainer(for: FocusSession.self)  // SwiftDataコンテナを追加
+        .modelContainer(PersistenceController.sharedModelContainer)
     }
 }

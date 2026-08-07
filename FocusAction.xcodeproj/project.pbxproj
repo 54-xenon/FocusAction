@@ -81,11 +81,19 @@
 			);
 			target = 1A47F9422FAB17940047B8D8 /* FocusAction */;
 		};
+		1A53026E3025788900EF607C /* Exceptions for "FocusAction for Watch Watch App" folder in "FocusAction for Watch Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"FocusAction-for-Watch-Watch-App-Info.plist",
+			);
+			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
+		};
 		1AB31DCC2FB604D70007EBBF /* Exceptions for "FocusAction" folder in "FocusAction for Watch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Models/FocusSession.swift,
 				Models/TimerMode.swift,
+				Services/PersistenceController.swift,
 				Services/TimerSyncManager.swift,
 				ViewModels/TimerViewModel.swift,
 			);
@@ -115,6 +123,9 @@
 		};
 		1AF1A30E2FB600F400CD2FE8 /* FocusAction for Watch Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1A53026E3025788900EF607C /* Exceptions for "FocusAction for Watch Watch App" folder in "FocusAction for Watch Watch App" target */,
+			);
 			path = "FocusAction for Watch Watch App";
 			sourceTree = "<group>";
 		};
@@ -802,11 +813,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "FocusAction for Watch Watch App/FocusAction for Watch Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2552YPAY94;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FocusAction-for-Watch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "FocusAction for Watch";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.keito.FocusAction;
@@ -835,11 +848,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "FocusAction for Watch Watch App/FocusAction for Watch Watch App.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2552YPAY94;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "FocusAction-for-Watch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "FocusAction for Watch";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.keito.FocusAction;

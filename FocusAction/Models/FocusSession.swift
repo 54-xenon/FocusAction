@@ -8,22 +8,22 @@ import SwiftData
 
 @Model
 final class FocusSession {
-    var id: UUID
-    var startDate: Date
-    var duration: TimeInterval
-    var sessionTypeRawValue: String
+    var id: UUID = UUID()
+    var startDate: Date = Date()
+    var duration: TimeInterval = 0
+    var sessionTypeRawValue: String = SessionType.focus.rawValue
     var sessionType: SessionType {
         get { SessionType(rawValue: sessionTypeRawValue) ?? .focus }
         set { sessionTypeRawValue = newValue.rawValue }
     }
-    var tags: [String]
-    var isCompleted: Bool
-    var createdAt: Date
+    var tags: [String] = []
+    var isCompleted: Bool = true
+    var createdAt: Date = Date()
 
     init(
         id: UUID = UUID(),
-        startDate: Date,
-        duration: TimeInterval,
+        startDate: Date = Date(),
+        duration: TimeInterval = 0,
         sessionType: SessionType = .focus,
         tags: [String] = [],
         isCompleted: Bool = true,
