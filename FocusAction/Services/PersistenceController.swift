@@ -2,8 +2,7 @@
 //  PersistenceController.swift
 //  FocusAction
 //
-//  iOS/watchOS共通のCloudKit対応ModelContainer定義
-//  このファイルは両方のTargetに追加してください（TimerMode.swiftと同様）
+//  iOS/watchOS共通のCloudKit対応ModelContainerで定義
 //
 
 import CloudKit
@@ -60,8 +59,7 @@ enum PersistenceController {
         do {
             return try ModelContainer(for: schema, configurations: [cloudKitConfiguration])
         } catch {
-            // CloudKit対応ストアの作成/マイグレーションに失敗した場合でも、
-            // ローカルのみのストアで起動を継続できるようにフォールバックする。
+            // CloudKit対応ストアの作成/マイグレーションに失敗した場合でも、ローカルのみのストアで起動を継続できるようにフォールバックする。
             print("CloudKit対応ModelContainerの作成に失敗したため、ローカルストアにフォールバックします: \(error)")
             logDetailedError(error)
         }

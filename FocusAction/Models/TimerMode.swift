@@ -3,7 +3,6 @@
 //  FocusAction
 //
 //  iOS/watchOS共通のモデル
-//  このファイルは両方のTargetに追加してください
 //
 
 import SwiftUI

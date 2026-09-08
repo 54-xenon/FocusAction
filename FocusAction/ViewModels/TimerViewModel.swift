@@ -2,7 +2,6 @@
 //  TimerViewModel.swift
 //  FocusAction
 //
-//  iOS と Watch App の両方の Target に追加してください（TimerMode.swift と同様）
 //
 
 import SwiftUI

@@ -2,8 +2,6 @@
 //  TimerSyncManager.swift
 //  FocusAction
 //
-//  iOS と Watch App の両方の Target に追加してください（TimerMode.swift と同様）
-//
 //  iPhone側で実行中のタイマー状態を WatchConnectivity 経由で Watch に伝える。
 //  履歴データ(FocusSession)の同期は対象外（CloudKit側で別途対応）。
 //
