@@ -819,7 +819,7 @@
 				DEVELOPMENT_TEAM = 2552YPAY94;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "FocusAction-for-Watch-Watch-App-Info.plist";
+				INFOPLIST_FILE = "FocusAction for Watch Watch App/FocusAction-for-Watch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "FocusAction for Watch";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.keito.FocusAction;
@@ -854,7 +854,7 @@
 				DEVELOPMENT_TEAM = 2552YPAY94;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "FocusAction-for-Watch-Watch-App-Info.plist";
+				INFOPLIST_FILE = "FocusAction for Watch Watch App/FocusAction-for-Watch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "FocusAction for Watch";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.keito.FocusAction;
