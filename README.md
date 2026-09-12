@@ -1,13 +1,13 @@
 # FocusAction
 
-![Platform](https://img.shields.io/badge/Platform-iOS-blue)
+![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20watchOS-blue)
 ![Swift](https://img.shields.io/badge/Swift-6.0-orange)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-5.0-green)
 
 ポモドーロテクニックを活用した集中力向上のためのタイマーアプリです。
 ##  概要
 
-FocusActionは、作業効率を最大化するためのシンプルで美しいポモドーロタイマーアプリです。25分の集中時間と5分の休憩時間を繰り返すことで、生産性を向上させます。
+FocusActionは、作業効率を最大化するためのシンプルで美しいポモドーロタイマーアプリです。25分の集中時間と5分の休憩時間を繰り返すことで、生産性を向上させます。iPhone/iPadに加えApple Watchにも対応しています。
 
 ### 主な特徴
 
@@ -15,7 +15,9 @@ FocusActionは、作業効率を最大化するためのシンプルで美しい
 - 🎨 **モダンなUI**: Liquid Glassエフェクトを活用した美しいインターフェース。
 - 📊 **進捗の可視化**: 円形プログレスバーで残り時間を直感的に表示。
 - 🔄 **自動モード切替**: タイマー完了後、自動的に次のモードへ移行
-- 📝 **履歴管理**: 作業履歴を確認できる。モチベーションを維持し、目標を実現するためサポートします（今後実装予定）
+- 📝 **履歴管理**: SwiftData + CloudKitで作業履歴を保存し、端末をまたいで同期
+- ⌚ **Apple Watch対応**: WatchConnectivityでiPhoneとタイマーの状態をリアルタイム同期
+- 🔔 **通知**: タイマー完了時にローカル通知でお知らせ
 - ⚙️ **カスタマイズ可能**: 設定画面でタイマーをカスタマイズ（今後実装予定）
 
 ## スクリーンショット
@@ -37,30 +39,38 @@ UIがもうちょっと固まってきたら追加します.
 ### ファイル構成
 
 ```
-FocusAction/
-├── iOS App/
-│   ├── FocusActionApp.swift
-│   ├── ControlView.swift
-│   ├── TimerView.swift (iPad対応済み)
-│   ├── HistoryView.swift
-│   ├── SettingView.swift
-|   ├── TimerMode.swift
-|   ├── FocusSession.swift (SwiftData)
-|   |── NotificationManager.swift
-│   └── その他のiOS専用ファイル
+FocusAction.xcodeproj
+├── FocusAction/                          … iOS/iPadOS アプリ本体
+│   ├── App/
+│   │   └── FocusActionApp.swift          … エントリポイント、ModelContainerの注入
+│   ├── Models/
+│   │   ├── TimerMode.swift               … タイマーのモード定義（集中/休憩）※iOS/watchOS共通
+│   │   └── FocusSession.swift            … SwiftDataの永続化モデル（セッション履歴）※iOS/watchOS共通
+│   ├── ViewModels/
+│   │   └── TimerViewModel.swift          … タイマーの状態管理・進行ロジック ※iOS/watchOS共通
+│   ├── Services/
+│   │   ├── PersistenceController.swift   … CloudKit対応ModelContainerの構築 ※iOS/watchOS共通
+│   │   ├── TimerSyncManager.swift        … WatchConnectivityによるiPhone-Watch間の状態同期 ※iOS/watchOS共通
+│   │   └── NotificationManager.swift     … ローカル通知の管理（iOS専用）
+│   └── Views/
+│       ├── ControlView.swift             … TabViewによるルートナビゲーション
+│       ├── TimerView.swift (+iPhone/+iPad) … タイマー画面
+│       ├── HistoryView.swift (+iPhone/+iPad) … 履歴画面
+│       └── SettingView.swift             … 設定画面
 │
-├── Watch App/
-    ├── FocusActionWatchApp.swift
+└── FocusAction for Watch Watch App/      … watchOS アプリ
+    ├── FocusAction_for_WatchApp.swift
     ├── WatchTimerView.swift
     └── Assets.xcassets (Watch用)
-
 ```
+
+より詳しい構成やレイヤー設計は [docs/architecture.md](docs/architecture.md) を参照してください。
 
 ### 主要コンポーネント
 
 #### TimerView
 - タイマーのメイン画面
-- `@State`プロパティでタイマーの状態を管理
+- `TimerViewModel`でタイマーの状態を管理し、`horizontalSizeClass`でiPhone/iPad向けに出し分け
 - Combineフレームワークの`Timer.publish`で1秒ごとに更新
 - Liquid Glassエフェクトを活用したモダンなUI
 
@@ -72,19 +82,26 @@ FocusAction/
 - 3つのタブ（Timer、History、Settings）を管理
 - アプリ全体のナビゲーション
 
+#### TimerSyncManager
+- WatchConnectivityを使い、iPhoneとApple Watch間でタイマーの実行状態を同期
+
 ##  技術スタック
 
-- **言語**: Swift
+- **言語**: Swift 6.0
 - **フレームワーク**: SwiftUI
-- **状態管理**: `@State`, `@Binding`
+- **対象OS**: iOS/iPadOS, watchOS
+- **状態管理**: MVVM（`ObservableObject` + `@StateObject`/`@ObservedObject`）
 - **リアクティブ**: Combine (Timer.publish)
+- **永続化 / 同期**: SwiftData + CloudKit（プライベートデータベース）
+- **端末間同期**: WatchConnectivity
 - **デザイン**: Liquid Glass エフェクト
 
 ##  必要要件
 
 - iOS/iPadOS 26.0以降
-- Xcode 14.0以降
-- Swift 5.7以降
+- watchOS 26.4以降
+- Xcode 16以降
+- Swift 6.0以降
 
 ##  インストール
 
@@ -101,6 +118,8 @@ open FocusAction.xcodeproj
 
 3. シミュレーターまたは実機でビルド・実行
 
+> CloudKit同期を有効にするには署名・Capabilityの設定が必要です。詳細は [docs/setup.md](docs/setup.md) を参照してください。
+
 ##  使い方
 
 1. **タイマーの開始**: 再生ボタンをタップしてタイマーを開始
@@ -114,13 +133,14 @@ open FocusAction.xcodeproj
 - [x] 履歴機能の実装
   - 完了したポモドーロの記録
   - 統計データの表示
-- [ ] 設定機能の実装
+- [x] データ永続化（SwiftData + CloudKit）
+- [x] 通知機能の追加
+- [x] Apple Watch対応（WatchConnectivityによる状態同期）
+- [ ] 設定機能の拡充
   - タイマー時間のカスタマイズ
   - 通知設定
   - サウンド設定
 - [ ] 長い休憩モードの追加（15分）
-- [ ] データ永続化（SwiftData）
-- [ ] 通知機能の追加
 - [ ] ウィジェット対応
 
 ##  デザイン
@@ -133,6 +153,10 @@ open FocusAction.xcodeproj
 - 流動的なアニメーションと遷移
 
 
+
+## 開発者向けドキュメント
+
+アーキテクチャやデータモデル、Watch連携などの詳細は [docs/](docs/docs_README.md) にまとめています。
 
 ##  コントリビューション
 
