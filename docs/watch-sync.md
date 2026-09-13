@@ -4,7 +4,17 @@
 間でタイマーの**実行状態**をリアルタイムに近い形で同期する。
 
 > 対象は「今どのモードで、あと何秒残っていて、動いているか」といったタイマーの実行状態のみ。
-> `FocusSession` の履歴データはこの仕組みの対象外で、CloudKit 経由で別途同期される。
+> `FocusSession` の履歴データや `Tag`（タグ）データはこの仕組みの対象外で、CloudKit 経由で別途
+> 同期される。watchOS 側でタグを選ぶ `WatchTagListView` も、CloudKit 経由で端末に反映された
+> `Tag` を `@Query` で参照しているだけで、WatchConnectivity 経由の即時反映は行っていない
+> （iPhoneでタグを作った直後は、Watch側に届くまでCloudKitの同期を待つ必要がある）。
+
+> watchOS 側では、以前は `WatchTimerView` が唯一の画面として `TimerViewModel` を保持していたが、
+> タグ一覧画面（`WatchTagListView`）を追加したことで、`TimerViewModel`（＝ `TimerSyncManager.start(with:)`
+> の呼び出し元）は `WatchTagListView` 側で保持し、`WatchTimerView` へは `@ObservedObject` として
+> 注入する構成に変わっている。`WatchTagListView` は `NavigationStack` のルートとしてアプリの
+> ライフタイム中マウントされ続けるため、以前と同様に単一の `TimerViewModel` インスタンスが
+> 画面遷移をまたいでも維持される。
 
 ## 同期される状態: TimerSyncState
 

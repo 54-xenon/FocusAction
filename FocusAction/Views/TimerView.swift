@@ -36,4 +36,5 @@ struct TimerView: View {
 
 #Preview {
     TimerView()
+        .modelContainer(for: [FocusSession.self, Tag.self], inMemory: true)
 }

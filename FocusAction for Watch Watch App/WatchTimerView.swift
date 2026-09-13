@@ -9,18 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct WatchTimerView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.scenePhase) private var scenePhase
+    @ObservedObject var viewModel: TimerViewModel
+    let initialTag: Tag?
 
-    @StateObject private var viewModel = TimerViewModel()
     @State private var feedbackTrigger = 0
-
-    // Watch 用に短い表示テキスト
-    private var statusText: String {
-        if viewModel.isTimerRunning { return viewModel.timerMode == .focus ? "集中" : "休憩中" }
-        if viewModel.timeRemaining <= 0 { return "完了" }
-        return "準備完了"
-    }
 
     var body: some View {
         ZStack {
@@ -47,9 +39,7 @@ struct WatchTimerView: View {
                         Text(viewModel.timeString)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
 
-                        Text(statusText)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                        TagChipView(tag: viewModel.selectedTag, font: .caption2)
                     }
                 }
                 .frame(width: 150, height: 150)
@@ -128,15 +118,12 @@ struct WatchTimerView: View {
         }
         .sensoryFeedback(.impact, trigger: feedbackTrigger)
         .sensoryFeedback(.success, trigger: viewModel.completionCount)
-        .onChange(of: scenePhase) { _, newPhase in
-            viewModel.handleScenePhaseChange(newPhase)
-        }
         .task {
-            viewModel.modelContext = modelContext
+            viewModel.selectedTag = initialTag
         }
     }
 }
 
 #Preview {
-    WatchTimerView()
+    WatchTimerView(viewModel: TimerViewModel(), initialTag: nil)
 }

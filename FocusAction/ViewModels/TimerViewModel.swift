@@ -16,6 +16,8 @@ final class TimerViewModel: ObservableObject {
     @Published var timerMode: TimerMode = .focus
     // タイマー完了時にインクリメント（Watch 側の触覚フィードバック用）
     @Published var completionCount = 0
+    // タイマー開始前にiOS側で選択されたタグ（watchOSでは常にnil）
+    @Published var selectedTag: Tag?
 
     var modelContext: ModelContext?
 
@@ -49,8 +51,12 @@ final class TimerViewModel: ObservableObject {
 
     var statusText: String {
         if isTimerRunning { return timerMode == .focus ? "集中..." : "休憩中..." }
-        if timeRemaining <= 0 { return "完了！" }
-        return "タップして開始"
+        return "完了！"
+    }
+
+    // タイマー未開始（開始前 or リセット後）で、円の中にタグ選択を表示すべきかどうか
+    var isIdle: Bool {
+        !isTimerRunning && timeRemaining > 0
     }
 
     // MARK: - Timer Control
@@ -206,15 +212,16 @@ final class TimerViewModel: ObservableObject {
         guard let modelContext, let startDate = sessionStartDate else { return }
         let elapsed = totalTime - timeRemaining
         #if os(watchOS)
-        let tags = ["Watch"]
+        let isFromWatch = true
         #else
-        let tags: [String] = []
+        let isFromWatch = false
         #endif
         let session = FocusSession(
             startDate: startDate,
             duration: elapsed,
             sessionType: timerMode == .focus ? .focus : .shortBreak,
-            tags: tags,
+            tag: selectedTag,
+            isFromWatch: isFromWatch,
             isCompleted: isCompleted
         )
         modelContext.insert(session)

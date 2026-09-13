@@ -51,7 +51,7 @@ enum PersistenceController {
     #endif
 
     static let sharedModelContainer: ModelContainer = {
-        let schema = Schema([FocusSession.self])
+        let schema = Schema([FocusSession.self, Tag.self])
         let cloudKitConfiguration = ModelConfiguration(
             schema: schema,
             cloudKitDatabase: .private(cloudKitContainerIdentifier)

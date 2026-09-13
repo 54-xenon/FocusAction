@@ -11,6 +11,7 @@ FocusAction は、iOS/iPadOS と watchOS 上で動作するポモドーロタイ
 - [画面構成](./views.md) — 各 View の役割とレイアウト分岐（iPhone / iPad / Watch）
 - [通知](./notifications.md) — ローカル通知のスケジューリング
 - [セットアップ](./setup.md) — 開発環境の準備、ビルド、CloudKit 設定
+- [作業記録](./作業記録/) — 実装作業の経緯・決定事項・トラブル対応を日付ごとに残すログ
 
 ## プロジェクト概要
 

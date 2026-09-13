@@ -16,22 +16,34 @@ struct HistoryViewIPad: View {
 
     // 統計用（フィルタなし全件、親から受け取る）
     let allSessions: [FocusSession]
+    let allTags: [Tag]
     let selectedFilter: FilterOption
+    let selectedTagID: UUID?
     let onFilterChange: (FilterOption) -> Void
+    let onTagFilterChange: (UUID?) -> Void
     let onDeleteSession: (FocusSession) -> Void
+    let onTagChange: (FocusSession, Tag?) -> Void
 
     init(
         allSessions: [FocusSession],
+        allTags: [Tag],
         selectedFilter: FilterOption,
+        selectedTagID: UUID?,
         onFilterChange: @escaping (FilterOption) -> Void,
-        onDeleteSession: @escaping (FocusSession) -> Void
+        onTagFilterChange: @escaping (UUID?) -> Void,
+        onDeleteSession: @escaping (FocusSession) -> Void,
+        onTagChange: @escaping (FocusSession, Tag?) -> Void
     ) {
         self.allSessions = allSessions
+        self.allTags = allTags
         self.selectedFilter = selectedFilter
+        self.selectedTagID = selectedTagID
         self.onFilterChange = onFilterChange
+        self.onTagFilterChange = onTagFilterChange
         self.onDeleteSession = onDeleteSession
+        self.onTagChange = onTagChange
         _filteredSessions = Query(
-            filter: selectedFilter.predicate,
+            filter: FocusSession.predicate(filterOption: selectedFilter, tagID: selectedTagID),
             sort: \FocusSession.startDate,
             order: .reverse
         )
@@ -65,6 +77,7 @@ struct HistoryViewIPad: View {
             VStack(spacing: 24) {
                 statisticsCard
                 filterButtons(isVertical: true)
+                tagFilterChips
                 Spacer()
             }
             .frame(width: 400)
@@ -91,6 +104,9 @@ struct HistoryViewIPad: View {
                         .padding(.horizontal, 20)
 
                     filterButtons(isVertical: false)
+                        .padding(.horizontal, 20)
+
+                    tagFilterChips
                         .padding(.horizontal, 20)
 
                     if filteredSessions.isEmpty {
@@ -203,6 +219,40 @@ struct HistoryViewIPad: View {
         }
     }
 
+    // MARK: - Tag Filter Chips
+
+    private var tagFilterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                tagFilterChip(title: "すべて", tag: nil)
+                ForEach(allTags) { tag in
+                    tagFilterChip(title: tag.title, tag: tag)
+                }
+            }
+        }
+    }
+
+    private func tagFilterChip(title: String, tag: Tag?) -> some View {
+        let isSelected = selectedTagID == tag?.id
+        return Button(action: { onTagFilterChange(tag?.id) }) {
+            HStack(spacing: 6) {
+                if let tag {
+                    Text(tag.emoji)
+                }
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+            }
+            .foregroundStyle(isSelected ? .primary : .secondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                isSelected ? Color.blue.opacity(0.1) : Color.gray.opacity(0.05)
+            )
+            .clipShape(Capsule())
+        }
+    }
+
     // MARK: - Session List
 
     private var sessionList: some View {
@@ -220,6 +270,8 @@ struct HistoryViewIPad: View {
                     ForEach(groupedSessions[date] ?? []) { session in
                         SessionRowIPad(session: session, onDelete: {
                             onDeleteSession(session)
+                        }, onTagChange: { tag in
+                            onTagChange(session, tag)
                         })
                     }
                 } header: {
@@ -357,6 +409,7 @@ struct StatBoxIPad: View {
 struct SessionRowIPad: View {
     let session: FocusSession
     let onDelete: () -> Void
+    let onTagChange: (Tag?) -> Void
 
     var body: some View {
         HStack(spacing: 20) {
@@ -392,6 +445,8 @@ struct SessionRowIPad: View {
                 Text(session.formattedTimeRange)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+
+                TagPickerMenu(selected: session.tag, onSelect: onTagChange)
             }
 
             Spacer()
