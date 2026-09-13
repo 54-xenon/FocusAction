@@ -11,10 +11,22 @@ FocusAction.xcodeproj
 └── (各ターゲットに対応する Tests / UITests)
 ```
 
-`TimerMode.swift`、`FocusSession.swift`、`PersistenceController.swift`、`TimerSyncManager.swift`、
-`TimerViewModel.swift` は iOS と watchOS の両ターゲットに追加されている共通ファイルです。
+`TimerMode.swift`、`FocusSession.swift`、`Tag.swift`、`PersistenceController.swift`、
+`TimerSyncManager.swift`、`TimerViewModel.swift`、`Color+Hex.swift`、`TagChipView.swift` は
+iOS と watchOS の両ターゲットに追加されている共通ファイルです。
 各ファイル冒頭のコメントに「両方の Target に追加してください」という注記があるのはこのためで、
 新規ファイル追加時は Target Membership の設定漏れに注意してください。
+
+このプロジェクトは Xcode 16 の File System Synchronized Group を使っているため、`FocusAction/`
+配下に置いたファイルは通常 iOS ターゲットにのみ自動で属する。watchOS ターゲットにも含めたい
+ファイルは `project.pbxproj` の
+`PBXFileSystemSynchronizedBuildFileExceptionSet`（"Exceptions for \"FocusAction\" folder in
+"FocusAction for Watch Watch App" target"）の `membershipExceptions` に明示的に追加する必要がある。
+
+> **落とし穴**: このリストはXcodeの独自plist形式（NeXTSTEP/OpenSTEP形式）で書かれており、
+> ファイル名に `+` のような記号が含まれる場合は `"Views/Color+Hex.swift"` のように**クォートしないと
+> プロジェクトファイルが壊れる**（`xcodebuild` が "damaged and cannot be opened due to a parse error"
+> で失敗する）。テキストエディタで直接このリストを編集する際は要注意。
 
 ## ディレクトリ構成（iOS アプリ）
 
@@ -24,9 +36,10 @@ FocusAction/
 │   └── FocusActionApp.swift        … エントリポイント、ModelContainer の注入
 ├── Models/
 │   ├── TimerMode.swift             … タイマーのモード定義（集中/休憩）※iOS/watchOS共通
-│   └── FocusSession.swift          … SwiftData の永続化モデル（セッション履歴）※iOS/watchOS共通
+│   ├── FocusSession.swift          … SwiftData の永続化モデル（セッション履歴）※iOS/watchOS共通
+│   └── Tag.swift                   … SwiftData の永続化モデル（タグ: タイトル/絵文字/背景色）※iOS/watchOS共通
 ├── ViewModels/
-│   └── TimerViewModel.swift        … タイマーの状態管理・進行ロジック ※iOS/watchOS共通
+│   └── TimerViewModel.swift        … タイマーの状態管理・進行ロジック・選択中タグの保持 ※iOS/watchOS共通
 ├── Services/
 │   ├── PersistenceController.swift … CloudKit対応 ModelContainer の構築 ※iOS/watchOS共通
 │   ├── TimerSyncManager.swift      … WatchConnectivity によるiPhone-Watch間の状態同期 ※iOS/watchOS共通
@@ -35,7 +48,21 @@ FocusAction/
     ├── ControlView.swift           … TabView によるルートナビゲーション
     ├── TimerView.swift / +iPhone / +iPad … タイマー画面（サイズクラスで出し分け）
     ├── HistoryView.swift / +iPhone / +iPad … 履歴画面（サイズクラスで出し分け）
-    └── SettingView.swift           … 設定画面
+    ├── SettingView.swift           … 設定画面
+    ├── Color+Hex.swift             … Tagの背景色(hex文字列)↔Colorの相互変換 ※iOS/watchOS共通・UIKit非依存
+    ├── TagChipView.swift           … 絵文字＋背景色バッジ＋タイトルでタグを表示する部品 ※iOS/watchOS共通
+    ├── TagPickerMenu.swift         … タグ選択Menu（iOS専用。TagChipViewをラップ）
+    ├── TagManagementView.swift     … 設定画面から遷移するタグ一覧・作成・削除画面（iOS専用）
+    └── TagEditView.swift           … タグの新規作成・編集フォーム（iOS専用）
+```
+
+watchOS アプリ側は以下の構成（`FocusAction for Watch Watch App/`）。
+
+```
+FocusAction for Watch Watch App/
+├── FocusAction_for_WatchApp.swift  … エントリポイント。NavigationStackのルートに WatchTagListView を配置
+├── WatchTagListView.swift          … 起動時のルート画面。タグ一覧＋タグ毎の集中時間合計を表示し、タップでWatchTimerViewへ遷移
+└── WatchTimerView.swift            … タイマー画面。NavigationStackにpushされ、TimerViewModelは親から注入される
 ```
 
 ## レイヤー設計
@@ -74,4 +101,23 @@ View (SwiftUI)
 - 共通ロジックは `TimerViewModel` に置き、UI 依存部分やプラットフォーム専用 API（通知、
   WatchConnectivity の送受信方向など）は `#if os(iOS)` / `#if os(watchOS)` で切り分ける。
 - 画面レイアウトはターゲットを分けず、iOS 側は `horizontalSizeClass`（iPhone/iPad）で、
-  watchOS 側は専用ターゲットの `WatchTimerView` で対応する。
+  watchOS 側は専用ターゲット内で `WatchTagListView`（ルート）→ `WatchTimerView`（push）という
+  2画面のNavigationStackで対応する。
+
+## watchOS の画面フロー
+
+iOS 側はタイマー開始前に円の中の `TagPickerMenu` でタグを選べるが、watchOS は画面が小さくメニュー
+UI を持ち込みにくいため、異なるフローを採用している。
+
+1. アプリ起動時、ルートの `WatchTagListView` がタグ一覧（＋「タグなし」）をタグ毎の集中時間合計と
+   ともに `List` 表示する。
+2. 行をタップすると、その `Tag?` を渡しながら `WatchTimerView` へ `NavigationLink` で遷移する。
+3. `WatchTimerView` は `.task` 内で `viewModel.selectedTag = initialTag` をセットしてからタイマーを
+   開始できる状態になる。
+
+`TimerViewModel` は `WatchTagListView` が `@StateObject` として保持し、`WatchTimerView` へは
+`@ObservedObject` として注入する。これは `TimerSyncManager.shared.start(with:)` が
+`TimerViewModel.init()` 内で呼ばれるため、画面を跨いでインスタンスが再生成されないようにする狙いが
+ある（`WatchTagListView` はNavigationStackのルートとしてアプリのライフタイム中ずっとマウントされ
+続けるため、ここに置けば従来通り単一インスタンスが保たれる）。watchOS ではタグの作成・編集はできず、
+選択のみに限定している（絵文字入力や`ColorPicker`がwatchOSのSwiftUIには存在しないため）。

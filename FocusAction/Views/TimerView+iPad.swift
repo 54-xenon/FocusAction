@@ -82,9 +82,15 @@ struct TimerViewIPad: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
 
-                Text(viewModel.statusText)
-                    .font(.system(size: size / 24))
-                    .foregroundStyle(.secondary)
+                if viewModel.isIdle {
+                    TagPickerMenu(selected: viewModel.selectedTag, font: .system(size: size / 24)) {
+                        viewModel.selectedTag = $0
+                    }
+                } else {
+                    Text(viewModel.statusText)
+                        .font(.system(size: size / 24))
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(size / 6)
         }

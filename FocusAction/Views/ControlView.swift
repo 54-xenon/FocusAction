@@ -18,17 +18,17 @@ struct ControlView: View {
             // Timer
             TimerView()
                 .tabItem {
-                    Label("Timer", systemImage: "timer")
+                    Label("タイマー", systemImage: "timer")
                 }
             // History
             HistoryView()
                 .tabItem {
-                    Label("History", systemImage: "chart.bar")
+                    Label("履歴", systemImage: "chart.bar")
                 }
             // settings
             SettingView()
                 .tabItem {
-                    Label("Settings", systemImage: "gearshape")
+                    Label("設定", systemImage: "gearshape")
                 }
         }
         // iPadOSでサイドバーを有効化するため

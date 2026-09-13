@@ -11,7 +11,9 @@ import SwiftData
 struct FocusAction_for_Watch_Watch_AppApp: App {
     var body: some Scene {
         WindowGroup {
-            WatchTimerView()
+            NavigationStack {
+                WatchTagListView()
+            }
         }
         .modelContainer(PersistenceController.sharedModelContainer)
     }

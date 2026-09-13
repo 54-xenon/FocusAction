@@ -5,6 +5,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SettingView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -67,6 +68,26 @@ struct SettingView: View {
                         Text("タイマー完了時に通知を受け取るには、通知を許可してください。")
                     }
                     
+                    // タグ管理セクション
+                    Section {
+                        NavigationLink {
+                            TagManagementView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "tag.fill")
+                                    .foregroundStyle(.blue)
+                                    .frame(width: 30)
+
+                                Text("タグを管理")
+                                    .font(.body)
+                            }
+                        }
+                    } header: {
+                        Text("タグ")
+                    } footer: {
+                        Text("セッションに付けるタグを作成・編集できます。")
+                    }
+
                     // アプリ情報セクション
                     Section {
                         HStack {
@@ -143,4 +164,5 @@ struct FeatureRow: View {
 
 #Preview {
     SettingView()
+        .modelContainer(for: [FocusSession.self, Tag.self], inMemory: true)
 }

@@ -92,10 +92,13 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Models/FocusSession.swift,
+				Models/Tag.swift,
 				Models/TimerMode.swift,
 				Services/PersistenceController.swift,
 				Services/TimerSyncManager.swift,
 				ViewModels/TimerViewModel.swift,
+				"Views/Color+Hex.swift",
+				Views/TagChipView.swift,
 			);
 			target = 1AF1A30C2FB600F400CD2FE8 /* FocusAction for Watch Watch App */;
 		};

@@ -34,8 +34,8 @@ enum TimerMode: String, CaseIterable {
     
     var title: String {
         switch self {
-        case .focus: return "集中タイム"
-        case .shortBreak: return "休憩タイム"
+        case .focus: return "集中"
+        case .shortBreak: return "休憩"
         }
     }
 }

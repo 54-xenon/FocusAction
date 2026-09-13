@@ -16,7 +16,9 @@ final class FocusSession {
         get { SessionType(rawValue: sessionTypeRawValue) ?? .focus }
         set { sessionTypeRawValue = newValue.rawValue }
     }
-    var tags: [String] = []
+    @Relationship(deleteRule: .nullify)
+    var tag: Tag? = nil
+    var isFromWatch: Bool = false
     var isCompleted: Bool = true
     var createdAt: Date = Date()
 
@@ -25,7 +27,8 @@ final class FocusSession {
         startDate: Date = Date(),
         duration: TimeInterval = 0,
         sessionType: SessionType = .focus,
-        tags: [String] = [],
+        tag: Tag? = nil,
+        isFromWatch: Bool = false,
         isCompleted: Bool = true,
         createdAt: Date = Date()
     ) {
@@ -33,7 +36,8 @@ final class FocusSession {
         self.startDate = startDate
         self.duration = duration
         self.sessionTypeRawValue = sessionType.rawValue
-        self.tags = tags
+        self.tag = tag
+        self.isFromWatch = isFromWatch
         self.isCompleted = isCompleted
         self.createdAt = createdAt
     }
@@ -102,34 +106,9 @@ enum SessionType: String, Codable, CaseIterable {
 // MARK: - Predicate Helpers
 
 extension FocusSession {
-    static func predicate(for tag: String) -> Predicate<FocusSession> {
-        #Predicate<FocusSession> { session in
-            session.tags.contains(tag)
-        }
-    }
-
     static func predicate(from startDate: Date, to endDate: Date) -> Predicate<FocusSession> {
         #Predicate<FocusSession> { session in
             session.startDate >= startDate && session.startDate <= endDate
-        }
-    }
-
-    static func completedSessionsPredicate() -> Predicate<FocusSession> {
-        #Predicate<FocusSession> { session in
-            session.isCompleted == true
-        }
-    }
-
-    static func focusSessionsPredicate() -> Predicate<FocusSession> {
-        #Predicate<FocusSession> { session in
-            session.sessionTypeRawValue == "集中"
-        }
-    }
-
-    static func predicate(for sessionType: SessionType) -> Predicate<FocusSession> {
-        let rawValue = sessionType.rawValue
-        return #Predicate<FocusSession> { session in
-            session.sessionTypeRawValue == rawValue
         }
     }
 }

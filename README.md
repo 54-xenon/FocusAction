@@ -16,6 +16,7 @@ FocusActionは、作業効率を最大化するためのシンプルで美しい
 - 📊 **進捗の可視化**: 円形プログレスバーで残り時間を直感的に表示。
 - 🔄 **自動モード切替**: タイマー完了後、自動的に次のモードへ移行
 - 📝 **履歴管理**: SwiftData + CloudKitで作業履歴を保存し、端末をまたいで同期
+- 🏷️ **タグ機能**: タイトル・絵文字・背景色を持つタグをセッションに1つ付けて管理・絞り込み
 - ⌚ **Apple Watch対応**: WatchConnectivityでiPhoneとタイマーの状態をリアルタイム同期
 - 🔔 **通知**: タイマー完了時にローカル通知でお知らせ
 - ⚙️ **カスタマイズ可能**: 設定画面でタイマーをカスタマイズ（今後実装予定）
@@ -45,7 +46,8 @@ FocusAction.xcodeproj
 │   │   └── FocusActionApp.swift          … エントリポイント、ModelContainerの注入
 │   ├── Models/
 │   │   ├── TimerMode.swift               … タイマーのモード定義（集中/休憩）※iOS/watchOS共通
-│   │   └── FocusSession.swift            … SwiftDataの永続化モデル（セッション履歴）※iOS/watchOS共通
+│   │   ├── FocusSession.swift            … SwiftDataの永続化モデル（セッション履歴）※iOS/watchOS共通
+│   │   └── Tag.swift                     … SwiftDataの永続化モデル（タグ）※iOS/watchOS共通
 │   ├── ViewModels/
 │   │   └── TimerViewModel.swift          … タイマーの状態管理・進行ロジック ※iOS/watchOS共通
 │   ├── Services/
@@ -56,11 +58,14 @@ FocusAction.xcodeproj
 │       ├── ControlView.swift             … TabViewによるルートナビゲーション
 │       ├── TimerView.swift (+iPhone/+iPad) … タイマー画面
 │       ├── HistoryView.swift (+iPhone/+iPad) … 履歴画面
-│       └── SettingView.swift             … 設定画面
+│       ├── SettingView.swift             … 設定画面
+│       ├── Color+Hex.swift, TagChipView.swift … タグ表示用の共通部品 ※iOS/watchOS共通
+│       └── TagPickerMenu.swift, TagManagementView.swift, TagEditView.swift … タグ選択・管理（iOS専用）
 │
 └── FocusAction for Watch Watch App/      … watchOS アプリ
     ├── FocusAction_for_WatchApp.swift
-    ├── WatchTimerView.swift
+    ├── WatchTagListView.swift            … 起動時のルート画面（タグ一覧）
+    ├── WatchTimerView.swift              … タイマー画面（push先）
     └── Assets.xcassets (Watch用)
 ```
 

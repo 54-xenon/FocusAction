@@ -14,7 +14,11 @@ struct HistoryView: View {
     @Query(sort: \FocusSession.startDate, order: .reverse)
     private var allSessions: [FocusSession]
 
+    @Query(sort: \Tag.createdAt)
+    private var allTags: [Tag]
+
     @State private var selectedFilter: FilterOption = .all
+    @State private var selectedTagID: UUID?
     @State private var showDeleteAlert = false
     @State private var sessionToDelete: FocusSession?
 
@@ -23,16 +27,24 @@ struct HistoryView: View {
             if horizontalSizeClass == .regular {
                 HistoryViewIPad(
                     allSessions: allSessions,
+                    allTags: allTags,
                     selectedFilter: selectedFilter,
+                    selectedTagID: selectedTagID,
                     onFilterChange: { selectedFilter = $0 },
-                    onDeleteSession: { sessionToDelete = $0; showDeleteAlert = true }
+                    onTagFilterChange: { selectedTagID = $0 },
+                    onDeleteSession: { sessionToDelete = $0; showDeleteAlert = true },
+                    onTagChange: { session, tag in changeTag(of: session, to: tag) }
                 )
             } else {
                 HistoryViewIPhone(
                     allSessions: allSessions,
+                    allTags: allTags,
                     selectedFilter: selectedFilter,
+                    selectedTagID: selectedTagID,
                     onFilterChange: { selectedFilter = $0 },
-                    onDeleteSession: { sessionToDelete = $0; showDeleteAlert = true }
+                    onTagFilterChange: { selectedTagID = $0 },
+                    onDeleteSession: { sessionToDelete = $0; showDeleteAlert = true },
+                    onTagChange: { session, tag in changeTag(of: session, to: tag) }
                 )
             }
         }
@@ -55,6 +67,17 @@ struct HistoryView: View {
         } catch {
             #if DEBUG
             print("セッション削除エラー: \(error.localizedDescription)")
+            #endif
+        }
+    }
+
+    private func changeTag(of session: FocusSession, to tag: Tag?) {
+        session.tag = tag
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("タグ変更エラー: \(error.localizedDescription)")
             #endif
         }
     }
@@ -97,6 +120,7 @@ struct StatBox: View {
 struct SessionRow: View {
     let session: FocusSession
     let onDelete: () -> Void
+    let onTagChange: (Tag?) -> Void
 
     var body: some View {
         HStack(spacing: 16) {
@@ -132,6 +156,8 @@ struct SessionRow: View {
                 Text(session.formattedTimeRange)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                TagPickerMenu(selected: session.tag, onSelect: onTagChange)
             }
 
             Spacer()
@@ -168,14 +194,23 @@ enum FilterOption: String, CaseIterable {
     case focus = "集中"
     case shortBreak = "休憩"
     case completed = "完了済み"
+}
 
-    // SwiftData の @Query に渡す Predicate
-    var predicate: Predicate<FocusSession>? {
-        switch self {
-        case .all:       return nil
-        case .focus:     return FocusSession.focusSessionsPredicate()
-        case .shortBreak: return FocusSession.predicate(for: .shortBreak)
-        case .completed: return FocusSession.completedSessionsPredicate()
+extension FocusSession {
+    // SwiftData の @Query に渡す、種別/完了状態/タグの複合Predicate
+    static func predicate(filterOption: FilterOption, tagID: UUID?) -> Predicate<FocusSession> {
+        let requireCompletedOnly = filterOption == .completed
+        let sessionTypeRawValue: String? = {
+            switch filterOption {
+            case .focus: return SessionType.focus.rawValue
+            case .shortBreak: return SessionType.shortBreak.rawValue
+            default: return nil
+            }
+        }()
+        return #Predicate<FocusSession> { session in
+            (sessionTypeRawValue == nil || session.sessionTypeRawValue == sessionTypeRawValue!) &&
+            (!requireCompletedOnly || session.isCompleted == true) &&
+            (tagID == nil || session.tag?.id == tagID)
         }
     }
 }
@@ -184,5 +219,5 @@ enum FilterOption: String, CaseIterable {
 
 #Preview {
     HistoryView()
-        .modelContainer(for: FocusSession.self, inMemory: true)
+        .modelContainer(for: [FocusSession.self, Tag.self], inMemory: true)
 }

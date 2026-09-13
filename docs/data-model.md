@@ -10,9 +10,26 @@
 | `startDate` | `Date` | セッション開始日時 |
 | `duration` | `TimeInterval` | 実際に経過した時間（秒） |
 | `sessionTypeRawValue` / `sessionType` | `String` / `SessionType` | 集中・休憩の種別（生の文字列で保持し、computed property で enum に変換） |
-| `tags` | `[String]` | タグ（例: Watch から保存された場合は `["Watch"]`） |
+| `tag` | `Tag?` | 紐付けられたタグ（`Tag` 削除時は `deleteRule: .nullify` で自動的に `nil` になる） |
+| `isFromWatch` | `Bool` | watchOS 側で保存されたセッションかどうか |
 | `isCompleted` | `Bool` | タイマーが最後まで完了したか |
 | `createdAt` | `Date` | レコード作成日時 |
+
+## Tag（SwiftData モデル）
+
+`FocusAction/Models/Tag.swift` で定義される、ユーザーが作成するタグ。設定画面（`TagManagementView` / `TagEditView`）から作成・編集・削除する。
+
+| プロパティ | 型 | 説明 |
+|---|---|---|
+| `id` | `UUID` | 一意識別子 |
+| `title` | `String` | タグのタイトル |
+| `emoji` | `String` | タグのアイコンとして使う絵文字 |
+| `colorHex` | `String` | 絵文字の背景色（`#RRGGBB` のhex文字列。`Color` への変換は `Color+Hex.swift` のView層extensionで行う） |
+| `createdAt` | `Date` | レコード作成日時 |
+
+`FocusSession` とは1対多（1つのTagは複数のセッションから参照されうるが、1セッションが持てるタグは最大1つ）の関係。タイマー開始前（`TimerViewModel.selectedTag`）または履歴画面（`SessionRow` / `SessionRowIPad` の `TagPickerMenu`）から付け替えられる。watchOS では `WatchTagListView` の一覧からタップで選んだタグがそのまま `TimerViewModel.selectedTag` に入る（詳細は [画面構成](./views.md) を参照）。
+
+新規作成時の絵文字・背景色のデフォルト値は `Tag.defaultEmoji` / `Tag.defaultColorHex` として型に定義しており、`TagEditView` の初期値もここを参照する（マジックストリングの重複を避けるため）。
 
 > **CloudKit との関係で全プロパティにインラインのデフォルト値が必須**（`var id: UUID = UUID()` のように）。
 > `init` のデフォルト引数だけでは CloudKit 同期用のスキーマ要件を満たせず、同期が黙って失敗する。
@@ -34,10 +51,8 @@ enum SessionType: String, Codable, CaseIterable {
 `HistoryView` のフィルタ機能から使われる `#Predicate` ベースのヘルパーを `FocusSession` の
 extension として用意している。
 
-- `predicate(for tag:)` — タグでの絞り込み
-- `predicate(from:to:)` — 期間での絞り込み
-- `completedSessionsPredicate()` — 完了済みのみ
-- `focusSessionsPredicate()` / `predicate(for sessionType:)` — セッション種別での絞り込み
+- `FocusSession.predicate(filterOption:tagID:)`（`HistoryView.swift` で定義）— セッション種別・完了状態・タグの複合フィルタ。`HistoryViewIPhone` / `HistoryViewIPad` の `@Query` に渡す
+- `predicate(from:to:)`（`FocusSession.swift` で定義）— 期間での絞り込み
 
 ## PersistenceController と CloudKit
 
@@ -75,6 +90,6 @@ CloudKit 用のストア作成に失敗しても、アプリはクラッシュ�
 1. `TimerViewModel.toggleTimer()` でタイマー開始時に `sessionStartDate` を記録。
 2. タイマーが 0 になると `timerCompleted()` → `saveSession(isCompleted: true)` が呼ばれ、
    `FocusSession` を生成して `modelContext.insert` → `modelContext.save()`。
-3. watchOS 側で保存された場合は `tags = ["Watch"]` が付与される。
+3. watchOS 側で保存された場合は `isFromWatch = true` が付与される（watchOS では `tag` は常に `nil`）。
 4. `HistoryView` は `@Query(sort: \FocusSession.startDate, order: .reverse)` で全件を取得し、
    `FilterOption` に応じてクライアント側でフィルタ表示する。

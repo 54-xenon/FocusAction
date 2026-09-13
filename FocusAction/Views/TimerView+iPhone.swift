@@ -74,9 +74,15 @@ struct TimerViewIPhone: View {
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
 
-                Text(viewModel.statusText)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if viewModel.isIdle {
+                    TagPickerMenu(selected: viewModel.selectedTag, font: .subheadline) {
+                        viewModel.selectedTag = $0
+                    }
+                } else {
+                    Text(viewModel.statusText)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
             .padding(60)
         }
