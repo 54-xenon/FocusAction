@@ -84,11 +84,11 @@ FocusAction.xcodeproj
 - 各モードの時間、色、アイコンを管理
 
 #### ControlView
-- 3つのタブ（Timer、History、Settings）を管理
+- 3つのタブ（タイマー、履歴、設定）を管理
 - アプリ全体のナビゲーション
 
 #### TimerSyncManager
-- WatchConnectivityを使い、iPhoneとApple Watch間でタイマーの実行状態を同期
+- WatchConnectivityを使い、iPhoneとApple Watch間でタイマーの実行状態を同期(iOSとwatchOS間のみのサポート)
 
 ##  技術スタック
 
@@ -99,7 +99,7 @@ FocusAction.xcodeproj
 - **リアクティブ**: Combine (Timer.publish)
 - **永続化 / 同期**: SwiftData + CloudKit（プライベートデータベース）
 - **端末間同期**: WatchConnectivity
-- **デザイン**: Liquid Glass エフェクト
+- **デザイン**: Liquid Glass 
 
 ##  必要要件
 
@@ -161,7 +161,7 @@ open FocusAction.xcodeproj
 
 ## 開発者向けドキュメント
 
-アーキテクチャやデータモデル、Watch連携などの詳細は [docs/](docs/docs_README.md) にまとめています。
+アーキテクチャやデータモデル、Watch連携などの詳細は [docs/](docs/docs_README.md) にまとめています。随時、機能拡張に伴って内容を更新しています。
 
 ##  コントリビューション
 

@@ -85,7 +85,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1AF1A30C2FB600F400CD2FE8"
             BuildableName = "FocusAction for Watch Watch App.app"
-            BlueprintName = "FocusAction for Watch Watch App"
             ReferencedContainer = "container:FocusAction.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -102,7 +101,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1AF1A30C2FB600F400CD2FE8"
             BuildableName = "FocusAction for Watch Watch App.app"
-            BlueprintName = "FocusAction for Watch Watch App"
             ReferencedContainer = "container:FocusAction.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
