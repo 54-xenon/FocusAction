@@ -98,10 +98,12 @@ FocusAction.xcodeproj
 - **状態管理**: MVVM（`ObservableObject` + `@StateObject`/`@ObservedObject`）
 - **リアクティブ**: Combine (Timer.publish)
 - **永続化 / 同期**: SwiftData + CloudKit（プライベートデータベース）
-- **端末間同期**: WatchConnectivity
+- **端末間同期**: WatchConnectivity(ペアリングデバイスと直接通信)
 - **デザイン**: Liquid Glass 
 
 ##  必要要件
+
+**OS27、Duoへの対応状況:** OS27を搭載したデバイスは現在動作確認中です。iPhone Duoに関しては今年度中の対応を予定しています。
 
 - iOS/iPadOS 26.0以降
 - watchOS 26.4以降
@@ -147,6 +149,9 @@ open FocusAction.xcodeproj
   - サウンド設定
 - [ ] 長い休憩モードの追加（15分）
 - [ ] ウィジェット対応
+- [ ] ライブアクティビティへの対応
+- [ ] Dynamic Islandへの対応(iOSのみ)
+- [ ] macOSアプリの追加
 
 ##  デザイン
 
