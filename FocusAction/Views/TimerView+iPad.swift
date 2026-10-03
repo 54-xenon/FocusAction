@@ -2,7 +2,6 @@
 //  TimerView+iPad.swift
 //  FocusAction
 //
-//  iPad専用のTimerView UI (将来的に2カラム対応)
 //
 
 import SwiftUI

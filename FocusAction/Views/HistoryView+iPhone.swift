@@ -2,7 +2,6 @@
 //  HistoryView+iPhone.swift
 //  FocusAction
 //
-//  iPhone専用のHistoryView UI
 //
 
 import SwiftUI

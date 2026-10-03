@@ -19,7 +19,7 @@ struct SettingView: View {
                     .ignoresSafeArea()
                 
                 List {
-                    // 通知設定セクション
+                    // 通知設定のセクション
                     Section {
                         HStack {
                             Image(systemName: "bell.fill")

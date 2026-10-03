@@ -5,9 +5,9 @@
 //
 
 // Tabviewでページを切り替えるようにする
-    // Timer
-    // History
-    // Settings
+    // タイマー
+    // 履歴
+    // 設定
 
 import SwiftUI
 
@@ -31,7 +31,7 @@ struct ControlView: View {
                     Label("設定", systemImage: "gearshape")
                 }
         }
-        // iPadOSでサイドバーを有効化するため
+        // iPadOSでサイドバーを有効化するためのもの
         .tabViewStyle(.sidebarAdaptable)
     }
 }

@@ -2,7 +2,6 @@
 //  TimerView+iPhone.swift
 //  FocusAction
 //
-//  iPhone専用のTimerView UI
 //
 
 import SwiftUI

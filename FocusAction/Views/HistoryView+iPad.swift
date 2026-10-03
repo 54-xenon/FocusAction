@@ -2,7 +2,6 @@
 //  HistoryView+iPad.swift
 //  FocusAction
 //
-//  iPad専用のHistoryView UI (将来的に2カラム・グラフ表示対応)
 //
 
 import SwiftUI
