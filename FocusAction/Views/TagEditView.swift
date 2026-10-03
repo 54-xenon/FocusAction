@@ -2,7 +2,6 @@
 //  TagEditView.swift
 //  FocusAction
 //
-//  タグの新規作成・編集フォーム
 //
 
 import SwiftUI

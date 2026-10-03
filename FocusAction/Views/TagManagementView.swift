@@ -2,7 +2,6 @@
 //  TagManagementView.swift
 //  FocusAction
 //
-//  設定画面から遷移するタグの一覧・作成・削除画面
 //
 
 import SwiftUI

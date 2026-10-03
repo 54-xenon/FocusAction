@@ -2,7 +2,6 @@
 //  TagPickerMenu.swift
 //  FocusAction
 //
-//  「タグなし」＋登録済みタグの一覧から1つ選択するMenu
 //
 
 import SwiftUI

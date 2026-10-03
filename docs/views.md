@@ -46,6 +46,9 @@ Group {
     `saveSession(isCompleted:)` で `FocusSession.tag` として保存される。
   - 実行中／完了時は従来通り `viewModel.statusText`（「集中...」「休憩中...」「完了！」）を表示する。
 
+- `.task` と `scenePhase` が `.active` になったタイミングで `WidgetDataWriter.updateHistory` を呼び、
+  ウィジェット用の履歴集計を更新する（CloudKit で他端末の履歴が増えている場合に備える）。
+
 ## HistoryView
 
 - `@Query(sort: \FocusSession.startDate, order: .reverse) private var allSessions: [FocusSession]`

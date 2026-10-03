@@ -8,6 +8,7 @@ Xcode プロジェクトは3つの主要ターゲットで構成されていま�
 FocusAction.xcodeproj
 ├── FocusAction                          … iOS/iPadOS アプリ本体
 ├── FocusAction for Watch Watch App      … watchOS アプリ
+├── FocusActionWidgetExtension           … Live Activity / Dynamic Island（iOS専用、アプリに埋め込み）
 └── (各ターゲットに対応する Tests / UITests)
 ```
 
@@ -27,6 +28,36 @@ iOS と watchOS の両ターゲットに追加されている共通ファイル�
 > ファイル名に `+` のような記号が含まれる場合は `"Views/Color+Hex.swift"` のように**クォートしないと
 > プロジェクトファイルが壊れる**（`xcodebuild` が "damaged and cannot be opened due to a parse error"
 > で失敗する）。テキストエディタで直接このリストを編集する際は要注意。
+
+## Live Activity / Dynamic Island（iOS専用）
+
+- `FocusAction/LiveActivity/FocusActivityAttributes.swift` … `ActivityAttributes` 定義。アプリ本体と
+  `FocusActionWidgetExtension` の両方に属する（`TimerMode.swift`・`Color+Hex.swift` もExtensionと共有）。
+  Extension 側へのメンバーシップは "Exceptions for \"FocusAction\" folder in \"FocusActionWidgetExtension\" target" で管理。
+- `FocusAction/LiveActivity/LiveActivityManager.swift` … `TimerViewModel` から呼ばれ、タイマー開始で
+  Activity を開始、一時停止/再開で更新、リセット・モード切替・完了で終了する。
+- `FocusActionWidget/FocusLiveActivity.swift` … ロック画面と Dynamic Island（expanded / compact / minimal）のUI。
+  `.supplementalActivityFamilies([.small])` により Apple Watch の Smart Stack にも表示される（`.small` 用レイアウトは `WatchView`）。
+  プログレスバーは TimerView の円と同じ 20pt。カスタム描画では実行中に進捗が進まないため、標準の linear ProgressView を `scaleEffect` で太くしている。
+  実行中は `Text(timerInterval:)` で終了時刻までシステムがカウントダウンするため、アプリがバックグラウンドでも表示が進む。
+- アプリ側の Info.plist には `NSSupportsLiveActivities = YES` をビルド設定（`INFOPLIST_KEY_NSSupportsLiveActivities`）で付与している。
+
+## ホーム画面 / ロック画面 Widget（iOS専用）
+
+`FocusActionWidgetExtension` に「タイマー」と「履歴」の2種類の Widget がある。
+
+- Widget は別プロセスのため SwiftData ストアを直接読まない。アプリが App Group
+  （`group.com.keito.FocusAction`）の UserDefaults にスナップショットを書き込み、Widget はそれを読むだけ。
+- `FocusAction/Widget/WidgetSharedData.swift` … 共有データ型（`TimerWidgetState` / `HistoryWidgetSummary`）と読み書き。
+  アプリと Extension の両方に属する。
+- `FocusAction/Widget/WidgetDataWriter.swift` … アプリ側で書き込み + `WidgetCenter.reloadTimelines` を呼ぶ。
+  - タイマー: `TimerViewModel` の開始/一時停止/リセット/モード切替/タグ変更時
+  - 履歴: セッション保存・削除時、アプリ起動時とアクティブ復帰時（CloudKit で他端末の履歴が増えている場合に備える）
+- `FocusActionWidget/TimerWidget.swift` … small / medium / ロック画面（circular・rectangular・inline）。
+  終了予定時刻に「完了」表示へ切り替わるエントリを積むので、アプリが起動していなくても表示が進む。
+- `FocusActionWidget/HistoryWidget.swift` … small / medium（直近7日間の棒グラフ）/ ロック画面（rectangular・inline）。
+  集計は HistoryView の統計（今日/今週/合計）と同じ基準。日付が変わったら Widget 側で「今日」を0にリセットして表示する。
+- 他端末で記録した履歴は、このiPhoneでアプリを開くまで Widget に反映されない。
 
 ## ディレクトリ構成（iOS アプリ）
 

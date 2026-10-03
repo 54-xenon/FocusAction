@@ -2,7 +2,6 @@
 //  TagChipView.swift
 //  FocusAction
 //
-//  絵文字＋背景色のバッジとタイトルでタグを表示する小さなView
 //
 
 import SwiftUI

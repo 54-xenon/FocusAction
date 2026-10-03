@@ -18,6 +18,8 @@ FocusActionは、作業効率を最大化するためのシンプルで美しい
 - 📝 **履歴管理**: SwiftData + CloudKitで作業履歴を保存し、端末をまたいで同期
 - 🏷️ **タグ機能**: タイトル・絵文字・背景色を持つタグをセッションに1つ付けて管理・絞り込み
 - ⌚ **Apple Watch対応**: WatchConnectivityでiPhoneとタイマーの状態をリアルタイム同期
+- 🏝️ **Live Activity / Dynamic Island**: 実行中のタイマーをロック画面・Dynamic Island・Apple WatchのSmart Stackに表示（iOSのみ）
+- 🧩 **ウィジェット**: タイマーと履歴（今日・今週の集中時間、直近7日間のグラフ）のホーム画面/ロック画面ウィジェット（iOSのみ）
 - 🔔 **通知**: タイマー完了時にローカル通知でお知らせ
 - ⚙️ **カスタマイズ可能**: 設定画面でタイマーをカスタマイズ（今後実装予定）
 
@@ -50,6 +52,12 @@ FocusAction.xcodeproj
 │   │   └── Tag.swift                     … SwiftDataの永続化モデル（タグ）※iOS/watchOS共通
 │   ├── ViewModels/
 │   │   └── TimerViewModel.swift          … タイマーの状態管理・進行ロジック ※iOS/watchOS共通
+│   ├── LiveActivity/
+│   │   ├── FocusActivityAttributes.swift … Live Activityの属性定義 ※iOS/Widget Extension共通
+│   │   └── LiveActivityManager.swift     … Live Activityの開始・更新・終了（iOS専用）
+│   ├── Widget/
+│   │   ├── WidgetSharedData.swift        … App Group経由でWidgetと共有するデータ ※iOS/Widget Extension共通
+│   │   └── WidgetDataWriter.swift        … Widget用データの書き込みとタイムライン更新（iOS専用）
 │   ├── Services/
 │   │   ├── PersistenceController.swift   … CloudKit対応ModelContainerの構築 ※iOS/watchOS共通
 │   │   ├── TimerSyncManager.swift        … WatchConnectivityによるiPhone-Watch間の状態同期 ※iOS/watchOS共通
@@ -61,6 +69,12 @@ FocusAction.xcodeproj
 │       ├── SettingView.swift             … 設定画面
 │       ├── Color+Hex.swift, TagChipView.swift … タグ表示用の共通部品 ※iOS/watchOS共通
 │       └── TagPickerMenu.swift, TagManagementView.swift, TagEditView.swift … タグ選択・管理（iOS専用）
+│
+├── FocusActionWidget/                    … Widget Extension（iOS専用）
+│   ├── FocusActionWidgetBundle.swift
+│   ├── TimerWidget.swift                 … タイマーウィジェット
+│   ├── HistoryWidget.swift               … 履歴ウィジェット
+│   └── FocusLiveActivity.swift           … ロック画面 / Dynamic Island / Apple Watch の Live Activity
 │
 └── FocusAction for Watch Watch App/      … watchOS アプリ
     ├── FocusAction_for_WatchApp.swift
@@ -99,6 +113,7 @@ FocusAction.xcodeproj
 - **リアクティブ**: Combine (Timer.publish)
 - **永続化 / 同期**: SwiftData + CloudKit（プライベートデータベース）
 - **端末間同期**: WatchConnectivity(ペアリングデバイスと直接通信)
+- **Live Activity / ウィジェット**: ActivityKit + WidgetKit（App GroupのUserDefaultsでアプリとデータ共有）
 - **デザイン**: Liquid Glass 
 
 ##  必要要件
@@ -148,9 +163,9 @@ open FocusAction.xcodeproj
   - 通知設定
   - サウンド設定
 - [ ] 長い休憩モードの追加（15分）
-- [ ] ウィジェット対応
-- [ ] ライブアクティビティへの対応
-- [ ] Dynamic Islandへの対応(iOSのみ)
+- [x] ウィジェット対応
+- [x] ライブアクティビティへの対応
+- [x] Dynamic Islandへの対応(iOSのみ)
 - [ ] macOSアプリの追加
 
 ##  デザイン

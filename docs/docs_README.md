@@ -20,5 +20,6 @@ FocusAction は、iOS/iPadOS と watchOS 上で動作するポモドーロタイ
 - **UI フレームワーク**: SwiftUI
 - **永続化**: SwiftData + CloudKit（プライベートデータベース）
 - **端末間同期**: WatchConnectivity（タイマーの実行状態のみ。履歴データは CloudKit 経由）
+- **Live Activity / ウィジェット**: ActivityKit + WidgetKit（iOS のみ。詳細は [アーキテクチャ概要](./architecture.md)）
 
 トップレベルの `README.md`（プロジェクトルート）には、機能紹介やスクリーンショット等のユーザー向け情報があります。このディレクトリは開発者向けの技術ドキュメントです。
