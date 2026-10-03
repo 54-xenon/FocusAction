@@ -17,7 +17,13 @@ final class TimerViewModel: ObservableObject {
     // タイマー完了時にインクリメント（Watch 側の触覚フィードバック用）
     @Published var completionCount = 0
     // タイマー開始前にiOS側で選択されたタグ（watchOSでは常にnil）
-    @Published var selectedTag: Tag?
+    @Published var selectedTag: Tag? {
+        didSet {
+            #if os(iOS)
+            WidgetDataWriter.updateTimer(with: self)
+            #endif
+        }
+    }
 
     var modelContext: ModelContext?
 
@@ -28,6 +34,7 @@ final class TimerViewModel: ObservableObject {
 
     #if os(iOS)
     let notificationManager = NotificationManager.shared
+    let liveActivityManager = LiveActivityManager.shared
     #endif
 
     init() {
@@ -81,7 +88,9 @@ final class TimerViewModel: ObservableObject {
             #endif
         }
         #if os(iOS)
+        liveActivityManager.update(with: self)
         TimerSyncManager.shared.sendState(self)
+        WidgetDataWriter.updateTimer(with: self)
         #endif
     }
 
@@ -94,7 +103,9 @@ final class TimerViewModel: ObservableObject {
         }
         #if os(iOS)
         notificationManager.cancelAllNotifications()
+        liveActivityManager.end()
         TimerSyncManager.shared.sendState(self)
+        WidgetDataWriter.updateTimer(with: self)
         #endif
     }
 
@@ -102,6 +113,7 @@ final class TimerViewModel: ObservableObject {
         guard mode != timerMode else { return }
         #if os(iOS)
         notificationManager.cancelAllNotifications()
+        liveActivityManager.end()
         #endif
         stopTimerSubscription()
 
@@ -120,6 +132,7 @@ final class TimerViewModel: ObservableObject {
         }
         #if os(iOS)
         TimerSyncManager.shared.sendState(self)
+        WidgetDataWriter.updateTimer(with: self)
         #endif
     }
 
@@ -139,6 +152,8 @@ final class TimerViewModel: ObservableObject {
             } else if isTimerRunning {
                 #if os(iOS)
                 notificationManager.scheduleTimerCompletionNotification(for: timerMode, in: timeRemaining)
+                liveActivityManager.update(with: self)
+                WidgetDataWriter.updateTimer(with: self)
                 #endif
             }
         @unknown default:
@@ -227,6 +242,9 @@ final class TimerViewModel: ObservableObject {
         modelContext.insert(session)
         do {
             try modelContext.save()
+            #if os(iOS)
+            WidgetDataWriter.updateHistory(using: modelContext)
+            #endif
             #if DEBUG
             print("セッションを保存しました: \(session.formattedDuration)")
             #endif

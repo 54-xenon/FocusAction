@@ -64,6 +64,7 @@ struct HistoryView: View {
         modelContext.delete(session)
         do {
             try modelContext.save()
+            WidgetDataWriter.updateHistory(using: modelContext)
         } catch {
             #if DEBUG
             print("セッション削除エラー: \(error.localizedDescription)")

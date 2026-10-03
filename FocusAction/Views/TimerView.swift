@@ -23,9 +23,15 @@ struct TimerView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             viewModel.handleScenePhaseChange(newPhase)
+            // CloudKit経由で他端末の履歴が増えている可能性があるので、アクティブ時にWidgetの集計も更新する
+            if newPhase == .active {
+                WidgetDataWriter.updateHistory(using: modelContext)
+            }
         }
         .task {
             viewModel.modelContext = modelContext
+            WidgetDataWriter.updateHistory(using: modelContext)
+            WidgetDataWriter.updateTimer(with: viewModel)
             if !viewModel.notificationManager.isAuthorized {
                 await viewModel.notificationManager.requestAuthorization()
             }
