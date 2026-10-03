@@ -18,6 +18,7 @@ Xcode 上でターゲットを選択してビルド・実行する。
 
 - `FocusAction` … iOS/iPadOS アプリ
 - `FocusAction for Watch Watch App` … watchOS アプリ
+- `FocusActionWidgetExtension` … ウィジェット / Live Activity（iOS アプリに埋め込まれるため単体で実行はしない）
 
 ## 共通ファイルの扱いに関する注意
 
@@ -30,6 +31,23 @@ Xcode 上でターゲットを選択してビルド・実行する。
 - `PersistenceController.swift`
 - `TimerSyncManager.swift`
 - `TimerViewModel.swift`
+
+## App Group の設定（ウィジェット）
+
+ウィジェットはアプリと別プロセスで動くため、App Group の UserDefaults 経由でデータを受け取ります。
+
+- App Group 識別子: `group.com.keito.FocusAction`
+- `FocusAction/FocusAction.entitlements` と `FocusActionWidget/FocusActionWidget.entitlements` の両方に
+  `com.apple.security.application-groups` が必要。
+- 実機で動かすときは、Signing & Capabilities で両ターゲットに App Group が登録されているか確認する
+  （自動署名なら Developer アカウント側にも自動で登録される）。
+
+## アプリアイコン
+
+アイコンは Icon Composer で作成した `FocusAction/FocusActionICON.icon` を使用しています。
+iOS と watchOS の両ターゲットで Build Settings の `ASSETCATALOG_COMPILER_APPICON_NAME`
+（General の「App Icon」）に、拡張子を除いた `FocusActionICON` を指定しています。
+`.icon` ファイルはプロジェクトに追加するだけでは使われないので注意してください。
 
 ## CloudKit / iCloud の設定
 
