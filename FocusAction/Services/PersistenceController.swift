@@ -61,7 +61,9 @@ enum PersistenceController {
         } catch {
             // CloudKit対応ストアの作成/マイグレーションに失敗した場合でも、ローカルのみのストアで起動を継続できるようにフォールバックする。
             print("CloudKit対応ModelContainerの作成に失敗したため、ローカルストアにフォールバックします: \(error)")
+            #if DEBUG
             logDetailedError(error)
+            #endif
         }
 
         let localConfiguration = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
