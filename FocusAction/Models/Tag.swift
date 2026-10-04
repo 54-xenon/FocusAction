@@ -19,6 +19,10 @@ final class Tag {
     var colorHex: String = Tag.defaultColorHex
     var createdAt: Date = Date()
 
+    /// CloudKit同期にはリレーションの逆方向(inverse)が必須。FocusSession.tag の対になる側。
+    @Relationship(deleteRule: .nullify, inverse: \FocusSession.tag)
+    var sessions: [FocusSession]? = []
+
     init(
         id: UUID = UUID(),
         title: String = "",
