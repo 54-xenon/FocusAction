@@ -16,14 +16,16 @@ struct TimerViewIPhone: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 40) {
-//                Spacer()
 
+                // モード表示(集中 or 休憩)
                 modeMenu
 
+                // 円形のプログレスバー
                 timerCircle
 
                 Spacer()
 
+                // コントロールボタン(再生/停止、リセット)
                 controlButtons
 
                 Spacer()
@@ -73,14 +75,14 @@ struct TimerViewIPhone: View {
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
 
-                if viewModel.isIdle {
+                if viewModel.isCompleted {
+                    Text("完了！")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
                     TagPickerMenu(selected: viewModel.selectedTag, font: .subheadline) {
                         viewModel.selectedTag = $0
                     }
-                } else {
-                    Text(viewModel.statusText)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
                 }
             }
             .padding(60)

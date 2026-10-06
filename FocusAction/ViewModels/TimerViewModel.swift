@@ -4,6 +4,8 @@
 //
 //
 
+
+
 import SwiftUI
 import Combine
 import SwiftData
@@ -28,9 +30,12 @@ final class TimerViewModel: ObservableObject {
     var modelContext: ModelContext?
 
     private(set) var sessionStartDate: Date?
-    private var backgroundDate: Date?
+    /// 実行中のタイマーが終了する時刻。残り時間は毎回「endDate − 現在時刻」で求めるため、
+    /// バックグラウンド中にTimerが止まっても復帰時に正しい残り時間になる。
+    private var endDate: Date?
     private var timerCancellable: AnyCancellable?
-    private let timerPublisher = Timer.publish(every: 1, on: .main, in: .common)
+    // 表示の秒の切り替わりが遅れないよう、1秒より細かい間隔で残り時間を更新する
+    private let timerPublisher = Timer.publish(every: 0.25, on: .main, in: .common)
 
     #if os(iOS)
     let notificationManager = NotificationManager.shared
@@ -51,19 +56,16 @@ final class TimerViewModel: ObservableObject {
     }
 
     var timeString: String {
-        let minutes = Int(timeRemaining) / 60
-        let seconds = Int(timeRemaining) % 60
+        // 残り時間は小数を含むため切り上げて表示する（開始直後に1秒減って見えないように）
+        let displaySeconds = Int(timeRemaining.rounded(.up))
+        let minutes = displaySeconds / 60
+        let seconds = displaySeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    var statusText: String {
-        if isTimerRunning { return timerMode == .focus ? "集中..." : "休憩中..." }
-        return "完了！"
-    }
-
-    // タイマー未開始（開始前 or リセット後）で、円の中にタグ選択を表示すべきかどうか
-    var isIdle: Bool {
-        !isTimerRunning && timeRemaining > 0
+    // タイマーが最後まで終わった状態か（円の中にタグ選択の代わりに「完了！」を表示する）
+    var isCompleted: Bool {
+        !isTimerRunning && timeRemaining <= 0
     }
 
     // MARK: - Timer Control
@@ -74,6 +76,7 @@ final class TimerViewModel: ObservableObject {
         }
 
         if isTimerRunning {
+            endDate = Date().addingTimeInterval(timeRemaining)
             startTimerSubscription()
             if sessionStartDate == nil {
                 sessionStartDate = Date()
@@ -82,6 +85,8 @@ final class TimerViewModel: ObservableObject {
                 #endif
             }
         } else {
+            updateTimeRemaining()
+            endDate = nil
             stopTimerSubscription()
             #if os(iOS)
             notificationManager.cancelAllNotifications()
@@ -99,6 +104,7 @@ final class TimerViewModel: ObservableObject {
             stopTimerSubscription()
             isTimerRunning = false
             timeRemaining = totalTime
+            endDate = nil
             sessionStartDate = nil
         }
         #if os(iOS)
@@ -122,6 +128,7 @@ final class TimerViewModel: ObservableObject {
             self.totalTime = mode.duration
             self.timeRemaining = mode.duration
             self.isTimerRunning = false
+            self.endDate = nil
             self.sessionStartDate = nil
         }
 
@@ -139,26 +146,10 @@ final class TimerViewModel: ObservableObject {
     // MARK: - Scene Phase (iOS / watchOS 共通)
 
     func handleScenePhaseChange(_ phase: ScenePhase) {
-        switch phase {
-        case .background, .inactive:
-            if isTimerRunning { backgroundDate = Date() }
-        case .active:
-            guard let bgDate = backgroundDate else { return }
-            backgroundDate = nil
-            let elapsed = Date().timeIntervalSince(bgDate)
-            timeRemaining = max(0, timeRemaining - elapsed)
-            if timeRemaining <= 0 {
-                timerCompleted()
-            } else if isTimerRunning {
-                #if os(iOS)
-                notificationManager.scheduleTimerCompletionNotification(for: timerMode, in: timeRemaining)
-                liveActivityManager.update(with: self)
-                WidgetDataWriter.updateTimer(with: self)
-                #endif
-            }
-        @unknown default:
-            break
-        }
+        // 残り時間は endDate から求めるので、バックグラウンド移行時に記録しておくものはない。
+        // 復帰時に表示をすぐ最新にし、バックグラウンド中に終了していれば完了処理を行う。
+        guard phase == .active, isTimerRunning else { return }
+        tick()
     }
 
     // MARK: - Watch Sync
@@ -177,14 +168,17 @@ final class TimerViewModel: ObservableObject {
             if adjustedRemaining <= 0 {
                 isTimerRunning = false
                 timeRemaining = 0
+                endDate = nil
             } else {
                 timeRemaining = adjustedRemaining
+                endDate = state.referenceDate.addingTimeInterval(state.timeRemaining)
                 isTimerRunning = true
                 startTimerSubscription()
             }
         } else {
             isTimerRunning = false
             timeRemaining = state.timeRemaining
+            endDate = nil
         }
     }
 
@@ -204,16 +198,21 @@ final class TimerViewModel: ObservableObject {
     }
 
     private func tick() {
-        if timeRemaining > 0 {
-            timeRemaining -= 1
-        } else {
+        updateTimeRemaining()
+        if timeRemaining <= 0 {
             timerCompleted()
         }
+    }
+
+    private func updateTimeRemaining() {
+        guard let endDate else { return }
+        timeRemaining = max(0, endDate.timeIntervalSinceNow)
     }
 
     private func timerCompleted() {
         stopTimerSubscription()
         isTimerRunning = false
+        endDate = nil
         #if os(iOS)
         notificationManager.cancelAllNotifications()
         #endif

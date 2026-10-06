@@ -137,7 +137,7 @@ View (SwiftUI)
 
 ## watchOS の画面フロー
 
-iOS 側はタイマー開始前に円の中の `TagPickerMenu` でタグを選べるが、watchOS は画面が小さくメニュー
+iOS 側は円の中の `TagPickerMenu` でタグを選べる（開始前だけでなく実行中も変更できる）が、watchOS は画面が小さくメニュー
 UI を持ち込みにくいため、異なるフローを採用している。
 
 1. アプリ起動時、ルートの `WatchTagListView` がタグ一覧（＋「タグなし」）をタグ毎の集中時間合計と
