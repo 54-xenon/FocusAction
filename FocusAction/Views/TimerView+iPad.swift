@@ -81,14 +81,14 @@ struct TimerViewIPad: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
 
-                if viewModel.isIdle {
+                if viewModel.isCompleted {
+                    Text("完了！")
+                        .font(.system(size: size / 24))
+                        .foregroundStyle(.secondary)
+                } else {
                     TagPickerMenu(selected: viewModel.selectedTag, font: .system(size: size / 24)) {
                         viewModel.selectedTag = $0
                     }
-                } else {
-                    Text(viewModel.statusText)
-                        .font(.system(size: size / 24))
-                        .foregroundStyle(.secondary)
                 }
             }
             .padding(size / 6)

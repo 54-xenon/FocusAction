@@ -76,6 +76,31 @@ iOS と watchOS の両ターゲットで Build Settings の `ASSETCATALOG_COMPIL
 
 詳細は [データモデル](./data-model.md#persistencecontroller-と-cloudkit) を参照してください。
 
+### Production へのスキーマ反映
+
+CloudKit には Development と Production の2つの環境があり、インストール方法で接続先が変わります。
+
+| インストール方法 | CloudKit の環境 |
+|---|---|
+| Xcode から実行（Development 署名） | Development |
+| TestFlight / App Store / Ad Hoc | Production |
+
+Development では保存時に足りないフィールドが自動で作られますが、Production では作られず `BAD_REQUEST` で
+拒否されます。**`@Model` にプロパティやリレーションを追加したら、TestFlight に出す前に以下を行ってください。**
+
+1. 実機に Xcode から実行し、追加したフィールドを含むデータを1件保存・同期する（Development にスキーマが作られる）。
+2. [CloudKit Console](https://icloud.developer.apple.com/) → `iCloud.FocusActionContainer` → Development の
+   Schema → Record Types で、`CD_FocusSession` / `CD_Tag` に必要なフィールドがあるか確認する。
+3. 「Deploy Schema Changes...」で Production に反映し、Production 側にも同じフィールドがあるか確認する。
+
+注意:
+- Production に反映したスキーマは削除・型変更ができない（追加のみ）。Deploy 前に Development のスキーマが最終形か確認する。
+- Development と Production はデータが別。同期の確認は2台とも同じ環境・同じ Apple ID で行う。
+- TestFlight 版のログは Console.app で `FocusAction` のプロセスを絞り込み、`CloudKit` で検索して確認する。
+  Xcode 実行時はスキームの Arguments に `-com.apple.CoreData.CloudKitDebug 1` を追加すると詳しいログが出る。
+
+経緯は [作業記録 2026-10-04](./作業記録/2026-10-04_CloudKit同期不具合調査.md) を参照してください。
+
 ## 通知のテスト
 
 `SettingView` から通知を許可した後、「テスト通知を送信」ボタンで5秒後に通知が届くことを

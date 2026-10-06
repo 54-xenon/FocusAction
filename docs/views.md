@@ -38,13 +38,13 @@ Group {
 - `@StateObject private var viewModel = TimerViewModel()` でタイマー状態を保持。
 - `.task` で `viewModel.modelContext` に環境の `ModelContext` を注入し、通知の許可状態を確認・
   リクエストする。
-- `.onChange(of: scenePhase)` で `viewModel.handleScenePhaseChange` を呼び、バックグラウンド／
-  フォアグラウンド遷移時の経過時間補正をトリガーする。
+- `.onChange(of: scenePhase)` で `viewModel.handleScenePhaseChange` を呼び、フォアグラウンド復帰時に
+  残り時間を再計算する（残り時間は終了時刻 `endDate` から求めるため、バックグラウンド中の経過も反映される）。
 - 円の中（`timerCircle`）は残り時間の下に、状態に応じて表示を切り替える:
-  - `viewModel.isIdle`（未開始 or リセット後）のときは `TagPickerMenu` を表示し、タイマー開始前に
-    セッションへ付けるタグを選べる。選択結果は `viewModel.selectedTag` に入り、`timerCompleted()` →
-    `saveSession(isCompleted:)` で `FocusSession.tag` として保存される。
-  - 実行中／完了時は従来通り `viewModel.statusText`（「集中...」「休憩中...」「完了！」）を表示する。
+  - 通常（開始前・実行中・一時停止中）は `TagPickerMenu` を表示する。選択結果は `viewModel.selectedTag` に入り、
+    `timerCompleted()` → `saveSession(isCompleted:)` で `FocusSession.tag` として保存される。
+    タグは完了時に保存されるため、実行中に変更するとそのセッション全体が新しいタグで記録される。
+  - `viewModel.isCompleted`（タイマーが最後まで終わった状態）のときだけ「完了！」を表示する。
 
 - `.task` と `scenePhase` が `.active` になったタイミングで `WidgetDataWriter.updateHistory` を呼び、
   ウィジェット用の履歴集計を更新する（CloudKit で他端末の履歴が増えている場合に備える）。
@@ -108,7 +108,7 @@ Watch 側は2画面の `NavigationStack` で構成される（ルート: `WatchT
   行を `List` 表示する。各行には `TagChipView` と、そのタグが付いた集中セッションの合計時間
   （`focusMinutes(for:)`、"○○分"表記）を表示する。
 - 行をタップすると `NavigationLink` で `WatchTimerView(viewModel:initialTag:)` へ遷移する。
-- `.onChange(of: scenePhase)` によるバックグラウンド復帰時の経過時間補正と、`.task` での
+- `.onChange(of: scenePhase)` によるフォアグラウンド復帰時の残り時間の再計算と、`.task` での
   `viewModel.modelContext` 注入は、（画面遷移してもルートとしてマウントされ続ける）このView側で行う。
 - watchOS では新規タグ作成・編集はできない（iPhone側の `TagManagementView` / `TagEditView` でのみ
   可能）。CloudKit同期でiPhone側のタグが反映されるのを待つ形になる。

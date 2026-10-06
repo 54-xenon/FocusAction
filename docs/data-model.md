@@ -27,13 +27,16 @@
 | `colorHex` | `String` | 絵文字の背景色（`#RRGGBB` のhex文字列。`Color` への変換は `Color+Hex.swift` のView層extensionで行う） |
 | `createdAt` | `Date` | レコード作成日時 |
 
-`FocusSession` とは1対多（1つのTagは複数のセッションから参照されうるが、1セッションが持てるタグは最大1つ）の関係。タイマー開始前（`TimerViewModel.selectedTag`）または履歴画面（`SessionRow` / `SessionRowIPad` の `TagPickerMenu`）から付け替えられる。watchOS では `WatchTagListView` の一覧からタップで選んだタグがそのまま `TimerViewModel.selectedTag` に入る（詳細は [画面構成](./views.md) を参照）。
+`FocusSession` とは1対多（1つのTagは複数のセッションから参照されうるが、1セッションが持てるタグは最大1つ）の関係。タイマー画面（`TimerViewModel.selectedTag`。セッション完了時に保存される）または履歴画面（`SessionRow` / `SessionRowIPad` の `TagPickerMenu`）から付け替えられる。watchOS では `WatchTagListView` の一覧からタップで選んだタグがそのまま `TimerViewModel.selectedTag` に入る（詳細は [画面構成](./views.md) を参照）。
 
 新規作成時の絵文字・背景色のデフォルト値は `Tag.defaultEmoji` / `Tag.defaultColorHex` として型に定義しており、`TagEditView` の初期値もここを参照する（マジックストリングの重複を避けるため）。
 
 > **CloudKit との関係で全プロパティにインラインのデフォルト値が必須**（`var id: UUID = UUID()` のように）。
 > `init` のデフォルト引数だけでは CloudKit 同期用のスキーマ要件を満たせず、同期が黙って失敗する。
 > 新しいプロパティを追加する際は必ずインラインデフォルトを付けること。
+>
+> また、**プロパティやリレーションを追加したら、CloudKit の Production 環境へスキーマを Deploy する必要がある**。
+> 忘れると TestFlight / App Store 版だけ保存が `BAD_REQUEST` で拒否され、同期が止まる（手順は [セットアップ](./setup.md#production-へのスキーマ反映) を参照）。
 
 ### SessionType
 

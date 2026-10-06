@@ -62,8 +62,9 @@ struct TimerSyncState {
 1. 実行中のタイマー購読を一旦停止。
 2. `timerMode` / `totalTime` / `sessionStartDate` を同期。
 3. `isTimerRunning == true` の場合、`referenceDate` からの経過時間を引いた残り時間を計算。
-   経過しきっていれば停止状態に、残っていればタイマー購読を再開する。
-4. `isTimerRunning == false` の場合はそのまま `timeRemaining` を反映するのみ。
+   経過しきっていれば停止状態に、残っていれば終了時刻 `endDate`（`referenceDate + timeRemaining`）を
+   設定してタイマー購読を再開する。
+4. `isTimerRunning == false` の場合はそのまま `timeRemaining` を反映し、`endDate` を `nil` にする。
 
 ## 図解
 

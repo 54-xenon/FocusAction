@@ -15,17 +15,17 @@ import SwiftUI
 struct ControlView: View {
     var body: some View {
         TabView {
-            // Timer
+            // タイマ
             TimerView()
                 .tabItem {
                     Label("タイマー", systemImage: "timer")
                 }
-            // History
+            // 履歴
             HistoryView()
                 .tabItem {
                     Label("履歴", systemImage: "chart.bar")
                 }
-            // settings
+            // 設定
             SettingView()
                 .tabItem {
                     Label("設定", systemImage: "gearshape")
