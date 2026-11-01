@@ -115,6 +115,7 @@
 				Models/FocusSession.swift,
 				Models/Tag.swift,
 				Models/TimerMode.swift,
+				Models/TimerState.swift,
 				Services/PersistenceController.swift,
 				Services/TimerSyncManager.swift,
 				ViewModels/TimerViewModel.swift,
