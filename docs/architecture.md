@@ -12,7 +12,7 @@ FocusAction.xcodeproj
 └── (各ターゲットに対応する Tests / UITests)
 ```
 
-`TimerMode.swift`、`FocusSession.swift`、`Tag.swift`、`PersistenceController.swift`、
+`TimerMode.swift`、`TimerState.swift`、`FocusSession.swift`、`Tag.swift`、`PersistenceController.swift`、
 `TimerSyncManager.swift`、`TimerViewModel.swift`、`Color+Hex.swift`、`TagChipView.swift` は
 iOS と watchOS の両ターゲットに追加されている共通ファイルです。
 各ファイル冒頭のコメントに「両方の Target に追加してください」という注記があるのはこのためで、
@@ -67,6 +67,7 @@ FocusAction/
 │   └── FocusActionApp.swift        … エントリポイント、ModelContainer の注入
 ├── Models/
 │   ├── TimerMode.swift             … タイマーのモード定義（集中/休憩）※iOS/watchOS共通
+│   ├── TimerState.swift            … タイマーの状態と進行ロジック（副作用なし・単体テスト対象）※iOS/watchOS共通
 │   ├── FocusSession.swift          … SwiftData の永続化モデル（セッション履歴）※iOS/watchOS共通
 │   └── Tag.swift                   … SwiftData の永続化モデル（タグ: タイトル/絵文字/背景色）※iOS/watchOS共通
 ├── ViewModels/
@@ -108,8 +109,10 @@ View (SwiftUI)
 
 - **View 層**: `@StateObject` で `TimerViewModel` を保持し、`horizontalSizeClass` によって
   iPhone 向け／iPad 向けのサブビューを切り替える（例: `TimerView` → `TimerViewIPhone` / `TimerViewIPad`）。
-- **ViewModel 層**: `TimerViewModel` がタイマーのカウントダウン、モード切替、バックグラウンド復帰時の
-  経過時間補正、セッション保存、Watch への状態送信までを一手に担う。iOS と watchOS の両方で
+- **ViewModel 層**: `TimerViewModel` が `TimerState`（Model）を保持し、セッション保存・通知・
+  Live Activity・Widget 更新・Watch への状態送信といった副作用を担う。カウントダウン、モード切替、
+  バックグラウンド復帰時の経過時間補正などの計算は `TimerState` 側にあり、現在時刻を引数で受け取るため
+  `FocusActionTests` で単体テストしている。iOS と watchOS の両方で
   共有され、`#if os(iOS)` / `#if os(watchOS)` でプラットフォーム固有処理を分岐している。
 - **Service 層**:
   - `PersistenceController` — SwiftData の `ModelContainer` を CloudKit 対応で構築し、失敗時は
