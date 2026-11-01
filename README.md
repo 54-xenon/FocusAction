@@ -119,7 +119,7 @@ FocusAction.xcodeproj
 
 ##  必要要件
 
-**OS27、Duoへの対応状況:** OS27を搭載したデバイスは現在動作確認中です。iPhone Duoに関しては今年度中の対応を予定しています。
+**OS27、Duoへの対応状況:** OS27を搭載したデバイスは現在動作確認中です。iPhone Duoでの動作は確認済みですが、いくつかの問題(履歴画面とDinamic IslandのUIに問題を確認しています。)
 
 - iOS/iPadOS 26.0以降
 - watchOS 26.4以降
