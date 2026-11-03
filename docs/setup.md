@@ -27,10 +27,15 @@ Xcode 上でターゲットを選択してビルド・実行する。
 確認してください。
 
 - `TimerMode.swift`
+- `TimerState.swift`
 - `FocusSession.swift`
+- `Tag.swift`
 - `PersistenceController.swift`
 - `TimerSyncManager.swift`
-- `TimerViewModel.swift`
+- `TimerStore.swift`
+- `TimerEvent.swift`
+- `Color+Hex.swift`
+- `TagChipView.swift`
 
 ## App Group の設定（ウィジェット）
 

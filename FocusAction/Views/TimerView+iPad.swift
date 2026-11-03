@@ -8,7 +8,7 @@ import SwiftUI
 
 struct TimerViewIPad: View {
     @Environment(\.colorScheme) var colorScheme
-    @ObservedObject var viewModel: TimerViewModel
+    @Environment(TimerStore.self) private var timerStore
 
     var body: some View {
         ZStack {
@@ -42,13 +42,13 @@ struct TimerViewIPad: View {
     private func modeMenu(font: Font) -> some View {
         Menu {
             ForEach(TimerMode.allCases, id: \.self) { mode in
-                Button(action: { viewModel.switchMode(to: mode) }) {
+                Button(action: { timerStore.switchMode(to: mode) }) {
                     Label(mode.rawValue, systemImage: mode.icon)
                 }
             }
         } label: {
             HStack(spacing: 8) {
-                Text(viewModel.timerMode.title)
+                Text(timerStore.timerMode.title)
                     .font(font)
                     .fontWeight(.bold)
                     .foregroundStyle(.primary)
@@ -66,28 +66,28 @@ struct TimerViewIPad: View {
                 .stroke(Color.gray.opacity(0.15), lineWidth: lineWidth)
 
             Circle()
-                .trim(from: 0, to: viewModel.progress)
+                .trim(from: 0, to: timerStore.progress)
                 .stroke(
-                    viewModel.timerMode.color,
+                    timerStore.timerMode.color,
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 1), value: viewModel.progress)
+                .animation(.linear(duration: 1), value: timerStore.progress)
 
             VStack(spacing: size / 20) {
-                Text(viewModel.timeString)
+                Text(timerStore.timeString)
                     .font(.system(size: size / 6, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
 
-                if viewModel.isCompleted {
+                if timerStore.isCompleted {
                     Text("完了！")
                         .font(.system(size: size / 24))
                         .foregroundStyle(.secondary)
                 } else {
-                    TagPickerMenu(selected: viewModel.selectedTag, font: .system(size: size / 24)) {
-                        viewModel.selectedTag = $0
+                    TagPickerMenu(selected: timerStore.selectedTag, font: .system(size: size / 24)) {
+                        timerStore.selectedTag = $0
                     }
                 }
             }
@@ -98,15 +98,15 @@ struct TimerViewIPad: View {
 
     private func controlButtons(size: CGFloat) -> some View {
         HStack(spacing: 24) {
-            Button(action: viewModel.toggleTimer) {
-                Image(systemName: viewModel.isTimerRunning ? "pause.fill" : "play.fill")
+            Button(action: timerStore.toggleTimer) {
+                Image(systemName: timerStore.isTimerRunning ? "pause.fill" : "play.fill")
                     .font(.system(size: size / 2.8))
-                    .foregroundStyle(viewModel.timerMode.color)
+                    .foregroundStyle(timerStore.timerMode.color)
                     .frame(width: size, height: size)
             }
-            .glassEffect(.regular.tint(viewModel.timerMode.color.opacity(0.2)).interactive(), in: .circle)
+            .glassEffect(.regular.tint(timerStore.timerMode.color.opacity(0.2)).interactive(), in: .circle)
 
-            Button(action: viewModel.resetTimer) {
+            Button(action: timerStore.resetTimer) {
                 Image(systemName: "arrow.clockwise")
                     .font(.system(size: size / 2.8))
                     .foregroundStyle(.secondary)

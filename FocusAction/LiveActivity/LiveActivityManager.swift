@@ -22,8 +22,8 @@ final class LiveActivityManager {
     }
 
     /// タイマーの開始・一時停止・再開時に呼ぶ。Activity がなければ開始し、あれば更新する。
-    func update(with viewModel: TimerViewModel) {
-        let state = makeState(from: viewModel)
+    func update(state timerState: TimerState, tag: Tag?) {
+        let state = makeState(from: timerState, tag: tag)
         let content = ActivityContent(
             state: state,
             staleDate: state.isTimerRunning ? state.endDate : nil
@@ -34,7 +34,7 @@ final class LiveActivityManager {
             return
         }
 
-        guard viewModel.isTimerRunning,
+        guard timerState.isRunning,
               ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         do {
             activity = try Activity.request(
@@ -56,16 +56,16 @@ final class LiveActivityManager {
         Task { await activity.end(nil, dismissalPolicy: .immediate) }
     }
 
-    private func makeState(from viewModel: TimerViewModel) -> FocusActivityAttributes.ContentState {
+    private func makeState(from state: TimerState, tag: Tag?) -> FocusActivityAttributes.ContentState {
         FocusActivityAttributes.ContentState(
-            timerModeRawValue: viewModel.timerMode.rawValue,
-            isTimerRunning: viewModel.isTimerRunning,
-            timeRemaining: viewModel.timeRemaining,
-            endDate: Date().addingTimeInterval(viewModel.timeRemaining),
-            totalTime: viewModel.totalTime,
-            tagTitle: viewModel.selectedTag?.title,
-            tagEmoji: viewModel.selectedTag?.emoji,
-            tagColorHex: viewModel.selectedTag?.colorHex
+            timerModeRawValue: state.mode.rawValue,
+            isTimerRunning: state.isRunning,
+            timeRemaining: state.timeRemaining,
+            endDate: Date().addingTimeInterval(state.timeRemaining),
+            totalTime: state.totalTime,
+            tagTitle: tag?.title,
+            tagEmoji: tag?.emoji,
+            tagColorHex: tag?.colorHex
         )
     }
 }

@@ -12,18 +12,18 @@ import WidgetKit
 @MainActor
 enum WidgetDataWriter {
     /// タイマーの開始・一時停止・リセット・モード切替時に呼ぶ
-    static func updateTimer(with viewModel: TimerViewModel) {
-        let state = TimerWidgetState(
-            timerModeRawValue: viewModel.timerMode.rawValue,
-            isTimerRunning: viewModel.isTimerRunning,
-            timeRemaining: viewModel.timeRemaining,
-            totalTime: viewModel.totalTime,
-            endDate: Date().addingTimeInterval(viewModel.timeRemaining),
-            tagTitle: viewModel.selectedTag?.title,
-            tagEmoji: viewModel.selectedTag?.emoji,
-            tagColorHex: viewModel.selectedTag?.colorHex
+    static func updateTimer(state: TimerState, tag: Tag?) {
+        let widgetState = TimerWidgetState(
+            timerModeRawValue: state.mode.rawValue,
+            isTimerRunning: state.isRunning,
+            timeRemaining: state.timeRemaining,
+            totalTime: state.totalTime,
+            endDate: Date().addingTimeInterval(state.timeRemaining),
+            tagTitle: tag?.title,
+            tagEmoji: tag?.emoji,
+            tagColorHex: tag?.colorHex
         )
-        WidgetSharedData.saveTimerState(state)
+        WidgetSharedData.saveTimerState(widgetState)
         WidgetCenter.shared.reloadTimelines(ofKind: WidgetSharedData.Kind.timer)
     }
 

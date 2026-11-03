@@ -78,7 +78,7 @@ nonisolated struct TimerSyncState {
 final class TimerSyncManager: NSObject {
     static let shared = TimerSyncManager()
 
-    private weak var viewModel: TimerViewModel?
+    private weak var timerStore: TimerStore?
     private let session: WCSession? = WCSession.isSupported() ? .default : nil
 
     private override init() {
@@ -87,10 +87,10 @@ final class TimerSyncManager: NSObject {
         session?.activate()
     }
 
-    /// TimerViewModel の初期化時に呼び出す。watchOS 側では現在アプリを起動した瞬間に
-    /// 直近の状態を反映するため、保持済みの applicationContext を即座に適用する。
-    func start(with viewModel: TimerViewModel) {
-        self.viewModel = viewModel
+    /// watchOS で受信した状態を反映する TimerStore を登録する（watchOS の App 起動時に呼ぶ）。
+    /// アプリを起動した瞬間に直近の状態を反映するため、保持済みの applicationContext を即座に適用する。
+    func start(with timerStore: TimerStore) {
+        self.timerStore = timerStore
         #if os(watchOS)
         applyLatestContextIfAvailable()
         #endif
@@ -102,21 +102,21 @@ final class TimerSyncManager: NSObject {
         #if DEBUG
         print("[TimerSync] Watchで直近の状態を適用: mode=\(state.timerModeRawValue) running=\(state.isTimerRunning) remaining=\(state.timeRemaining)")
         #endif
-        viewModel?.applyRemoteState(state)
+        timerStore?.applyRemoteState(state)
     }
     #endif
 
     #if os(iOS)
     /// タイマーの状態が変化するたびに呼び出す。updateApplicationContext は最新の内容で
     /// 上書きされるため、毎秒ではなく開始/一時停止/リセット/モード切替時のみ呼べば十分。
-    func sendState(_ viewModel: TimerViewModel) {
+    func sendState(_ timerState: TimerState) {
         guard let session, session.isPaired, session.isWatchAppInstalled else { return }
         let state = TimerSyncState(
-            timerModeRawValue: viewModel.timerMode.rawValue,
-            totalTime: viewModel.totalTime,
-            timeRemaining: viewModel.timeRemaining,
-            isTimerRunning: viewModel.isTimerRunning,
-            sessionStartTimestamp: viewModel.sessionStartDate?.timeIntervalSince1970
+            timerModeRawValue: timerState.mode.rawValue,
+            totalTime: timerState.totalTime,
+            timeRemaining: timerState.timeRemaining,
+            isTimerRunning: timerState.isRunning,
+            sessionStartTimestamp: timerState.sessionStartDate?.timeIntervalSince1970
         )
         do {
             try session.updateApplicationContext(state.dictionary)
@@ -160,7 +160,7 @@ extension TimerSyncManager: WCSessionDelegate {
         print("[TimerSync] Watchで新しい状態を受信: mode=\(state.timerModeRawValue) running=\(state.isTimerRunning) remaining=\(state.timeRemaining)")
         #endif
         Task { @MainActor in
-            viewModel?.applyRemoteState(state)
+            timerStore?.applyRemoteState(state)
         }
     }
     #endif

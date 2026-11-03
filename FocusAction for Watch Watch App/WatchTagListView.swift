@@ -10,18 +10,13 @@ import SwiftUI
 import SwiftData
 
 struct WatchTagListView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.scenePhase) private var scenePhase
-
-    @StateObject private var viewModel = TimerViewModel()
-
     @Query(sort: \Tag.createdAt) private var tags: [Tag]
     @Query(sort: \FocusSession.startDate, order: .reverse) private var allSessions: [FocusSession]
 
     var body: some View {
         List {
             NavigationLink {
-                WatchTimerView(viewModel: viewModel, initialTag: nil)
+                WatchTimerView(initialTag: nil)
             } label: {
                 row(tag: nil)
             }
@@ -29,7 +24,7 @@ struct WatchTagListView: View {
             if !tags.isEmpty {
                 ForEach(tags) { tag in
                     NavigationLink {
-                        WatchTimerView(viewModel: viewModel, initialTag: tag)
+                        WatchTimerView(initialTag: tag)
                     } label: {
                         row(tag: tag)
                     }
@@ -37,12 +32,6 @@ struct WatchTagListView: View {
             }
         }
         .navigationTitle("タグ")
-        .onChange(of: scenePhase) { _, newPhase in
-            viewModel.handleScenePhaseChange(newPhase)
-        }
-        .task {
-            viewModel.modelContext = modelContext
-        }
     }
 
     private func row(tag: Tag?) -> some View {
