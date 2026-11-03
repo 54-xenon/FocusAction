@@ -49,10 +49,12 @@ FocusAction.xcodeproj
 │   │   └── FocusActionApp.swift          … エントリポイント、ModelContainerの注入
 │   ├── Models/
 │   │   ├── TimerMode.swift               … タイマーのモード定義（集中/休憩）※iOS/watchOS共通
+│   │   ├── TimerState.swift              … タイマーの状態と進行ロジック（副作用なし）※iOS/watchOS共通
 │   │   ├── FocusSession.swift            … SwiftDataの永続化モデル（セッション履歴）※iOS/watchOS共通
 │   │   └── Tag.swift                     … SwiftDataの永続化モデル（タグ）※iOS/watchOS共通
-│   ├── ViewModels/
-│   │   └── TimerViewModel.swift          … タイマーの状態管理・進行ロジック ※iOS/watchOS共通
+│   ├── Stores/
+│   │   ├── TimerStore.swift              … アプリ全体で1つのタイマー状態（@Observable）※iOS/watchOS共通
+│   │   └── TimerEvent.swift              … 副作用を注入するための TimerEvent / TimerEventHandler ※iOS/watchOS共通
 │   ├── LiveActivity/
 │   │   ├── FocusActivityAttributes.swift … Live Activityの属性定義 ※iOS/Widget Extension共通
 │   │   └── LiveActivityManager.swift     … Live Activityの開始・更新・終了（iOS専用）
@@ -90,8 +92,8 @@ FocusAction.xcodeproj
 
 #### TimerView
 - タイマーのメイン画面
-- `TimerViewModel`でタイマーの状態を管理し、`horizontalSizeClass`でiPhone/iPad向けに出し分け
-- Combineフレームワークの`Timer.publish`で1秒ごとに更新
+- App で1つだけ生成した`TimerStore`を environment から受け取り、`horizontalSizeClass`でiPhone/iPad向けに出し分け
+- `Task`のループで0.25秒ごとに残り時間を更新
 - Liquid Glassエフェクトを活用したモダンなUI
 
 #### TimerMode
@@ -110,8 +112,8 @@ FocusAction.xcodeproj
 - **言語**: Swift 6.0
 - **フレームワーク**: SwiftUI
 - **対象OS**: iOS/iPadOS, watchOS
-- **状態管理**: MVVM（`ObservableObject` + `@StateObject`/`@ObservedObject`）
-- **リアクティブ**: Combine (Timer.publish)
+- **状態管理**: Observation（`@Observable` の `TimerStore` を App で生成し `.environment` で配布）、履歴は SwiftData の `@Query`
+- **テスト**: Swift Testing（`TimerState` / `TimerStore` の単体テスト）
 - **永続化 / 同期**: SwiftData + CloudKit（プライベートデータベース）
 - **端末間同期**: WatchConnectivity(ペアリングデバイスと直接通信)
 - **Live Activity / ウィジェット**: ActivityKit + WidgetKit（App GroupのUserDefaultsでアプリとデータ共有）

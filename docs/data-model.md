@@ -27,7 +27,7 @@
 | `colorHex` | `String` | 絵文字の背景色（`#RRGGBB` のhex文字列。`Color` への変換は `Color+Hex.swift` のView層extensionで行う） |
 | `createdAt` | `Date` | レコード作成日時 |
 
-`FocusSession` とは1対多（1つのTagは複数のセッションから参照されうるが、1セッションが持てるタグは最大1つ）の関係。タイマー画面（`TimerViewModel.selectedTag`。セッション完了時に保存される）または履歴画面（`SessionRow` / `SessionRowIPad` の `TagPickerMenu`）から付け替えられる。watchOS では `WatchTagListView` の一覧からタップで選んだタグがそのまま `TimerViewModel.selectedTag` に入る（詳細は [画面構成](./views.md) を参照）。
+`FocusSession` とは1対多（1つのTagは複数のセッションから参照されうるが、1セッションが持てるタグは最大1つ）の関係。タイマー画面（`TimerStore.selectedTag`。セッション完了時に保存される）または履歴画面（`SessionRow` / `SessionRowIPad` の `TagPickerMenu`）から付け替えられる。watchOS では `WatchTagListView` の一覧からタップで選んだタグがそのまま `TimerStore.selectedTag` に入る（詳細は [画面構成](./views.md) を参照）。
 
 新規作成時の絵文字・背景色のデフォルト値は `Tag.defaultEmoji` / `Tag.defaultColorHex` として型に定義しており、`TagEditView` の初期値もここを参照する（マジックストリングの重複を避けるため）。
 
@@ -90,9 +90,11 @@ CloudKit 用のストア作成に失敗しても、アプリはクラッシュ�
 
 ## FocusSession のライフサイクル
 
-1. `TimerViewModel.toggleTimer()` でタイマー開始時に `sessionStartDate` を記録。
-2. タイマーが 0 になると `timerCompleted()` → `saveSession(isCompleted: true)` が呼ばれ、
-   `FocusSession` を生成して `modelContext.insert` → `modelContext.save()`。
-3. watchOS 側で保存された場合は `isFromWatch = true` が付与される（watchOS では `tag` は常に `nil`）。
+1. `TimerStore.toggleTimer()` でタイマー開始時に、`TimerState` が `sessionStartDate` を記録。
+2. タイマーが 0 になると `TimerState.tick(now:)` が `TimerCompletion` を返し、`TimerStore` の
+   `timerCompleted(_:)` → `saveSession(_:)` が `FocusSession` を生成して `modelContext.insert` →
+   `modelContext.save()`。保存先の `ModelContext` は App が `TimerStore` の init で渡す
+   （`PersistenceController.sharedModelContainer.mainContext`）。
+3. watchOS 側で保存された場合は `isFromWatch = true` が付与される（`TimerStore(isFromWatch: true)`）。
 4. `HistoryView` は `@Query(sort: \FocusSession.startDate, order: .reverse)` で全件を取得し、
    `FilterOption` に応じてクライアント側でフィルタ表示する。

@@ -13,7 +13,7 @@ FocusAction.xcodeproj
 ```
 
 `TimerMode.swift`、`TimerState.swift`、`FocusSession.swift`、`Tag.swift`、`PersistenceController.swift`、
-`TimerSyncManager.swift`、`TimerViewModel.swift`、`Color+Hex.swift`、`TagChipView.swift` は
+`TimerSyncManager.swift`、`TimerStore.swift`、`TimerEvent.swift`、`Color+Hex.swift`、`TagChipView.swift` は
 iOS と watchOS の両ターゲットに追加されている共通ファイルです。
 各ファイル冒頭のコメントに「両方の Target に追加してください」という注記があるのはこのためで、
 新規ファイル追加時は Target Membership の設定漏れに注意してください。
@@ -34,7 +34,7 @@ iOS と watchOS の両ターゲットに追加されている共通ファイル�
 - `FocusAction/LiveActivity/FocusActivityAttributes.swift` … `ActivityAttributes` 定義。アプリ本体と
   `FocusActionWidgetExtension` の両方に属する（`TimerMode.swift`・`Color+Hex.swift` もExtensionと共有）。
   Extension 側へのメンバーシップは "Exceptions for \"FocusAction\" folder in \"FocusActionWidgetExtension\" target" で管理。
-- `FocusAction/LiveActivity/LiveActivityManager.swift` … `TimerViewModel` から呼ばれ、タイマー開始で
+- `FocusAction/LiveActivity/LiveActivityManager.swift` … `LiveActivityTimerEventHandler`（`TimerEventHandlers.swift`）から呼ばれ、タイマー開始で
   Activity を開始、一時停止/再開で更新、リセット・モード切替・完了で終了する。
 - `FocusActionWidget/FocusLiveActivity.swift` … ロック画面と Dynamic Island（expanded / compact / minimal）のUI。
   `.supplementalActivityFamilies([.small])` により Apple Watch の Smart Stack にも表示される（`.small` 用レイアウトは `WatchView`）。
@@ -51,8 +51,8 @@ iOS と watchOS の両ターゲットに追加されている共通ファイル�
 - `FocusAction/Widget/WidgetSharedData.swift` … 共有データ型（`TimerWidgetState` / `HistoryWidgetSummary`）と読み書き。
   アプリと Extension の両方に属する。
 - `FocusAction/Widget/WidgetDataWriter.swift` … アプリ側で書き込み + `WidgetCenter.reloadTimelines` を呼ぶ。
-  - タイマー: `TimerViewModel` の開始/一時停止/リセット/モード切替/タグ変更時
-  - 履歴: セッション保存・削除時、アプリ起動時とアクティブ復帰時（CloudKit で他端末の履歴が増えている場合に備える）
+  - タイマー: `WidgetTimerEventHandler` が `TimerStore` の開始/一時停止/リセット/モード切替/タグ変更イベントを受けたとき
+  - 履歴: セッション保存（`.sessionSaved` イベント）・削除時、アプリ起動時とアクティブ復帰時（CloudKit で他端末の履歴が増えている場合に備える）
 - `FocusActionWidget/TimerWidget.swift` … small / medium / ロック画面（circular・rectangular・inline）。
   終了予定時刻に「完了」表示へ切り替わるエントリを積むので、アプリが起動していなくても表示が進む。
 - `FocusActionWidget/HistoryWidget.swift` … small / medium（直近7日間の棒グラフ）/ ロック画面（rectangular・inline）。
@@ -64,18 +64,20 @@ iOS と watchOS の両ターゲットに追加されている共通ファイル�
 ```
 FocusAction/
 ├── App/
-│   └── FocusActionApp.swift        … エントリポイント、ModelContainer の注入
+│   └── FocusActionApp.swift        … エントリポイント。ModelContainer と TimerStore の生成・注入、scenePhase の監視
 ├── Models/
 │   ├── TimerMode.swift             … タイマーのモード定義（集中/休憩）※iOS/watchOS共通
 │   ├── TimerState.swift            … タイマーの状態と進行ロジック（副作用なし・単体テスト対象）※iOS/watchOS共通
 │   ├── FocusSession.swift          … SwiftData の永続化モデル（セッション履歴）※iOS/watchOS共通
 │   └── Tag.swift                   … SwiftData の永続化モデル（タグ: タイトル/絵文字/背景色）※iOS/watchOS共通
-├── ViewModels/
-│   └── TimerViewModel.swift        … タイマーの状態管理・進行ロジック・選択中タグの保持 ※iOS/watchOS共通
+├── Stores/
+│   ├── TimerStore.swift            … アプリ全体で1つのタイマー状態（@Observable）。TimerState の保持・tick・セッション保存・イベント発行 ※iOS/watchOS共通
+│   └── TimerEvent.swift            … TimerEvent / TimerEventHandler プロトコル（副作用の注入口）※iOS/watchOS共通
 ├── Services/
 │   ├── PersistenceController.swift … CloudKit対応 ModelContainer の構築 ※iOS/watchOS共通
 │   ├── TimerSyncManager.swift      … WatchConnectivity によるiPhone-Watch間の状態同期 ※iOS/watchOS共通
-│   └── NotificationManager.swift   … ローカル通知の管理（iOS専用）
+│   ├── NotificationManager.swift   … ローカル通知の管理（iOS専用）
+│   └── TimerEventHandlers.swift    … 通知・Live Activity・Watch送信・Widget の TimerEventHandler 実装（iOS専用）
 └── Views/
     ├── ControlView.swift           … TabView によるルートナビゲーション
     ├── TimerView.swift / +iPhone / +iPad … タイマー画面（サイズクラスで出し分け）
@@ -92,28 +94,35 @@ watchOS アプリ側は以下の構成（`FocusAction for Watch Watch App/`）�
 
 ```
 FocusAction for Watch Watch App/
-├── FocusAction_for_WatchApp.swift  … エントリポイント。NavigationStackのルートに WatchTagListView を配置
+├── FocusAction_for_WatchApp.swift  … エントリポイント。TimerStore を生成して配り、NavigationStackのルートに WatchTagListView を配置
 ├── WatchTagListView.swift          … 起動時のルート画面。タグ一覧＋タグ毎の集中時間合計を表示し、タップでWatchTimerViewへ遷移
-└── WatchTimerView.swift            … タイマー画面。NavigationStackにpushされ、TimerViewModelは親から注入される
+└── WatchTimerView.swift            … タイマー画面。NavigationStackにpushされ、TimerStoreは environment から受け取る
 ```
 
 ## レイヤー設計
 
 ```
 View (SwiftUI)
-  └─ ObservableObject: TimerViewModel / NotificationManager
-       └─ Services: TimerSyncManager, PersistenceController
-            └─ SwiftData ModelContext ─┬─ ローカルストア
-                                        └─ CloudKit（プライベートDB）
+  └─ @Observable: TimerStore（App で1つ生成し .environment で配布）── TimerState（副作用なしのロジック）
+       │  TimerEvent
+       ├─ [TimerEventHandler]（iOS のみ注入）
+       │    ├─ NotificationTimerEventHandler  → NotificationManager
+       │    ├─ LiveActivityTimerEventHandler  → LiveActivityManager
+       │    ├─ WatchSyncTimerEventHandler     → TimerSyncManager
+       │    └─ WidgetTimerEventHandler        → WidgetDataWriter
+       └─ SwiftData ModelContext ─┬─ ローカルストア
+                                   └─ CloudKit（プライベートDB）
 ```
 
-- **View 層**: `@StateObject` で `TimerViewModel` を保持し、`horizontalSizeClass` によって
+- **View 層**: `@Environment(TimerStore.self)` で `TimerStore` を受け取り、`horizontalSizeClass` によって
   iPhone 向け／iPad 向けのサブビューを切り替える（例: `TimerView` → `TimerViewIPhone` / `TimerViewIPad`）。
-- **ViewModel 層**: `TimerViewModel` が `TimerState`（Model）を保持し、セッション保存・通知・
-  Live Activity・Widget 更新・Watch への状態送信といった副作用を担う。カウントダウン、モード切替、
-  バックグラウンド復帰時の経過時間補正などの計算は `TimerState` 側にあり、現在時刻を引数で受け取るため
-  `FocusActionTests` で単体テストしている。iOS と watchOS の両方で
-  共有され、`#if os(iOS)` / `#if os(watchOS)` でプラットフォーム固有処理を分岐している。
+- **Store 層**: `TimerStore` が `TimerState`（Model）を保持し、タイマー購読とセッション保存を行う。
+  状態が変わると `TimerEvent`（開始・一時停止・リセット・モード切替・完了・タグ変更・セッション保存）を
+  発行し、通知・Live Activity・Widget 更新・Watch への状態送信は注入された `TimerEventHandler` が担う。
+  カウントダウン、モード切替、バックグラウンド復帰時の経過時間補正などの計算は `TimerState` 側にある。
+  `TimerState` は現在時刻を引数で、`TimerStore` は現在時刻を返す関数を init で受け取るため、
+  どちらも `FocusActionTests` で単体テストしている。iOS と watchOS の両方で共有され、
+  `#if os` による分岐は持たない（プラットフォームの違いは注入するハンドラと `isFromWatch` で表す）。
 - **Service 層**:
   - `PersistenceController` — SwiftData の `ModelContainer` を CloudKit 対応で構築し、失敗時は
     ローカルのみのストアにフォールバックする。
@@ -123,17 +132,26 @@ View (SwiftUI)
 
 ## 状態管理
 
-- `@Published` プロパティを持つ `ObservableObject`（`TimerViewModel`, `NotificationManager`）を
-  SwiftUI の `@StateObject` / `@ObservedObject` で購読する、標準的な MVVM 構成。
-- タイマーの定期更新には Combine の `Timer.publish(every: 1, on: .main, in: .common)` を使用。
+- タイマーはアプリ全体の状態なので、`@Observable` の `TimerStore` を App が `@State` で1つだけ生成し、
+  `.environment` で配る。View は `@Environment(TimerStore.self)` で読む。タブの切り替えや、折りたたみ端末の
+  開閉による Compact ⇄ Regular のレイアウト切り替えで View が作り直されても、タイマーの状態は保たれる。
+- 保存先の `ModelContext` は、ルートの `.modelContainer` が環境に入れるものと同じ
+  `PersistenceController.sharedModelContainer.mainContext` を `TimerStore` の init で渡す。
+- フォアグラウンド復帰時の再計算は App の `.onChange(of: scenePhase)` から `TimerStore.handleScenePhaseChange` を呼ぶ。
+- 履歴・タグの一覧は View が SwiftData の `@Query` で直接取得する（Store を挟まない）。
+- タイマーの定期更新は `Task` のループ（`Task.sleep(for: .milliseconds(250))`）で行う。
+- `NotificationManager` は `ObservableObject` のまま、`SettingView` が `@ObservedObject` で購読している。
 - グローバルな共有状態が必要なサービス（`PersistenceController`, `TimerSyncManager`,
   `NotificationManager`）はシングルトン（`static let shared` / `static let sharedModelContainer`）
   として実装されている。
 
 ## プラットフォーム分岐の方針
 
-- 共通ロジックは `TimerViewModel` に置き、UI 依存部分やプラットフォーム専用 API（通知、
-  WatchConnectivity の送受信方向など）は `#if os(iOS)` / `#if os(watchOS)` で切り分ける。
+- 共通ロジックは `TimerState` / `TimerStore` に置き、プラットフォーム専用 API（通知、
+  Live Activity、Widget、Watch への送信）は `TimerEventHandler` として iOS ターゲットに実装する。
+  iOS の App は `TimerStore(modelContext:eventHandlers: TimerEventHandlers.live())`、watchOS の App は
+  `TimerStore(modelContext:isFromWatch: true)`（ハンドラなし）で生成する。
+- WatchConnectivity の送受信方向など、`TimerSyncManager` 内部の分岐は `#if os(iOS)` / `#if os(watchOS)` で切り分ける。
 - 画面レイアウトはターゲットを分けず、iOS 側は `horizontalSizeClass`（iPhone/iPad）で、
   watchOS 側は専用ターゲット内で `WatchTagListView`（ルート）→ `WatchTimerView`（push）という
   2画面のNavigationStackで対応する。
@@ -146,12 +164,10 @@ UI を持ち込みにくいため、異なるフローを採用している。
 1. アプリ起動時、ルートの `WatchTagListView` がタグ一覧（＋「タグなし」）をタグ毎の集中時間合計と
    ともに `List` 表示する。
 2. 行をタップすると、その `Tag?` を渡しながら `WatchTimerView` へ `NavigationLink` で遷移する。
-3. `WatchTimerView` は `.task` 内で `viewModel.selectedTag = initialTag` をセットしてからタイマーを
+3. `WatchTimerView` は `.task` 内で `timerStore.selectedTag = initialTag` をセットしてからタイマーを
    開始できる状態になる。
 
-`TimerViewModel` は `WatchTagListView` が `@StateObject` として保持し、`WatchTimerView` へは
-`@ObservedObject` として注入する。これは `TimerSyncManager.shared.start(with:)` が
-`TimerViewModel.init()` 内で呼ばれるため、画面を跨いでインスタンスが再生成されないようにする狙いが
-ある（`WatchTagListView` はNavigationStackのルートとしてアプリのライフタイム中ずっとマウントされ
-続けるため、ここに置けば従来通り単一インスタンスが保たれる）。watchOS ではタグの作成・編集はできず、
+`TimerStore` は watchOS の App が `@State` で1つだけ生成し、`.environment` で配る。
+`TimerSyncManager.shared.start(with:)` もルートの `.task` で呼ぶため、iPhone からの状態を受信する
+インスタンスは画面遷移をまたいでも変わらない。watchOS ではタグの作成・編集はできず、
 選択のみに限定している（絵文字入力や`ColorPicker`がwatchOSのSwiftUIには存在しないため）。

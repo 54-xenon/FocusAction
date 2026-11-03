@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// タイマーが最後まで終わったときの記録。TimerViewModel はこれを元にセッションを保存する。
+/// タイマーが最後まで終わったときの記録。TimerStore はこれを元にセッションを保存する。
 struct TimerCompletion: Equatable {
     let mode: TimerMode
     /// セッション開始時刻（Watch で途中から受信した場合など、不明なら nil）

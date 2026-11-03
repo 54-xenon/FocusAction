@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct WatchTimerView: View {
-    @ObservedObject var viewModel: TimerViewModel
+    @Environment(TimerStore.self) private var timerStore
     let initialTag: Tag?
 
     @State private var feedbackTrigger = 0
@@ -18,7 +18,7 @@ struct WatchTimerView: View {
         ZStack {
             // メインの円形プログレスとタイマー表示
             VStack(spacing: 8) {
-                Text(viewModel.timerMode.title)
+                Text(timerStore.timerMode.title)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
@@ -30,16 +30,16 @@ struct WatchTimerView: View {
                         .stroke(Color.gray.opacity(0.2), lineWidth: 6)
 
                     Circle()
-                        .trim(from: 0, to: viewModel.progress)
-                        .stroke(viewModel.timerMode.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .trim(from: 0, to: timerStore.progress)
+                        .stroke(timerStore.timerMode.color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                        .animation(.linear(duration: 1), value: viewModel.progress)
+                        .animation(.linear(duration: 1), value: timerStore.progress)
 
                     VStack(spacing: 2) {
-                        Text(viewModel.timeString)
+                        Text(timerStore.timeString)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
 
-                        TagChipView(tag: viewModel.selectedTag, font: .caption2)
+                        TagChipView(tag: timerStore.selectedTag, font: .caption2)
                     }
                 }
                 .frame(width: 150, height: 150)
@@ -49,7 +49,7 @@ struct WatchTimerView: View {
                 HStack(spacing: 4) {
                     ForEach(TimerMode.allCases, id: \.self) { mode in
                         Circle()
-                            .fill(viewModel.timerMode == mode ? mode.color : Color.gray.opacity(0.3))
+                            .fill(timerStore.timerMode == mode ? mode.color : Color.gray.opacity(0.3))
                             .frame(width: 6, height: 6)
                     }
                 }
@@ -60,12 +60,12 @@ struct WatchTimerView: View {
             VStack {
                 HStack {
                     Button {
-                        viewModel.switchMode(to: .focus)
+                        timerStore.switchMode(to: .focus)
                         feedbackTrigger += 1
                     } label: {
                         Image(systemName: TimerMode.focus.icon)
                             .font(.system(size: 20))
-                            .foregroundStyle(viewModel.timerMode == .focus ? TimerMode.focus.color : .secondary)
+                            .foregroundStyle(timerStore.timerMode == .focus ? TimerMode.focus.color : .secondary)
                     }
                     .buttonStyle(.plain)
                     .frame(width: 44, height: 44)
@@ -73,12 +73,12 @@ struct WatchTimerView: View {
                     Spacer()
 
                     Button {
-                        viewModel.switchMode(to: .shortBreak)
+                        timerStore.switchMode(to: .shortBreak)
                         feedbackTrigger += 1
                     } label: {
                         Image(systemName: TimerMode.shortBreak.icon)
                             .font(.system(size: 20))
-                            .foregroundStyle(viewModel.timerMode == .shortBreak ? TimerMode.shortBreak.color : .secondary)
+                            .foregroundStyle(timerStore.timerMode == .shortBreak ? TimerMode.shortBreak.color : .secondary)
                     }
                     .buttonStyle(.plain)
                     .frame(width: 44, height: 44)
@@ -88,7 +88,7 @@ struct WatchTimerView: View {
 
                 HStack {
                     Button {
-                        viewModel.resetTimer()
+                        timerStore.resetTimer()
                         feedbackTrigger += 1
                     } label: {
                         Image(systemName: "arrow.clockwise")
@@ -101,29 +101,30 @@ struct WatchTimerView: View {
                     Spacer()
 
                     Button {
-                        viewModel.toggleTimer()
+                        timerStore.toggleTimer()
                         feedbackTrigger += 1
                     } label: {
-                        Image(systemName: viewModel.isTimerRunning ? "pause.fill" : "play.fill")
+                        Image(systemName: timerStore.isTimerRunning ? "pause.fill" : "play.fill")
                             .font(.system(size: 20))
                             .foregroundStyle(.white)
                     }
                     .buttonStyle(.plain)
                     .frame(width: 44, height: 44)
-                    .background(viewModel.timerMode.color)
+                    .background(timerStore.timerMode.color)
                     .clipShape(Circle())
                 }
             }
             .padding(8)
         }
         .sensoryFeedback(.impact, trigger: feedbackTrigger)
-        .sensoryFeedback(.success, trigger: viewModel.completionCount)
+        .sensoryFeedback(.success, trigger: timerStore.completionCount)
         .task {
-            viewModel.selectedTag = initialTag
+            timerStore.selectedTag = initialTag
         }
     }
 }
 
 #Preview {
-    WatchTimerView(viewModel: TimerViewModel(), initialTag: nil)
+    WatchTimerView(initialTag: nil)
+        .environment(TimerStore(isFromWatch: true))
 }

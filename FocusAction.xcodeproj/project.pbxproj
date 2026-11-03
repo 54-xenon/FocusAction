@@ -118,7 +118,8 @@
 				Models/TimerState.swift,
 				Services/PersistenceController.swift,
 				Services/TimerSyncManager.swift,
-				ViewModels/TimerViewModel.swift,
+				Stores/TimerEvent.swift,
+				Stores/TimerStore.swift,
 				"Views/Color+Hex.swift",
 				Views/TagChipView.swift,
 			);

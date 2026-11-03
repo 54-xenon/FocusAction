@@ -1,43 +1,48 @@
 //
-//  TimerViewModel.swift
+//  TimerStore.swift
 //  FocusAction
 //
+//  アプリ全体で1つだけ持つタイマーの状態。App で生成して .environment で配る。iOS/watchOS共通
 //
 
-
-
 import SwiftUI
-import Combine
 import SwiftData
 
 @MainActor
-final class TimerViewModel: ObservableObject {
-    /// タイマーの状態と進行ロジック本体（副作用なし）。ここでは通知や同期などの副作用だけを扱う。
-    @Published private(set) var state = TimerState()
+@Observable
+final class TimerStore {
+    /// タイマーの状態と進行ロジック本体（副作用なし）
+    private(set) var state = TimerState()
     // タイマー完了時にインクリメント（Watch 側の触覚フィードバック用）
-    @Published var completionCount = 0
-    // タイマー開始前にiOS側で選択されたタグ（watchOSでは常にnil）
-    @Published var selectedTag: Tag? {
-        didSet {
-            #if os(iOS)
-            WidgetDataWriter.updateTimer(with: self)
-            #endif
-        }
+    private(set) var completionCount = 0
+    // iOSでは円の中のタグ選択、watchOSではタグ一覧で選んだタグ
+    var selectedTag: Tag? {
+        didSet { send(.tagChanged) }
     }
 
-    var modelContext: ModelContext?
+    /// 通知・Live Activity・Watch同期・Widget などの副作用。iOS では TimerEventHandlers.live() を注入する。
+    @ObservationIgnored private let eventHandlers: [any TimerEventHandler]
+    @ObservationIgnored private let modelContext: ModelContext?
+    @ObservationIgnored private let isFromWatch: Bool
+    @ObservationIgnored private let now: () -> Date
 
-    private var timerCancellable: AnyCancellable?
-    // 表示の秒の切り替わりが遅れないよう、1秒より細かい間隔で残り時間を更新する
-    private let timerPublisher = Timer.publish(every: 0.25, on: .main, in: .common)
+    @ObservationIgnored private var tickTask: Task<Void, Never>?
 
-    #if os(iOS)
-    let notificationManager = NotificationManager.shared
-    let liveActivityManager = LiveActivityManager.shared
-    #endif
-
-    init() {
-        TimerSyncManager.shared.start(with: self)
+    /// - Parameters:
+    ///   - modelContext: 完了したセッションの保存先（nil なら保存しない）
+    ///   - eventHandlers: 状態の変化を受け取る副作用の一覧
+    ///   - isFromWatch: 保存するセッションを Watch で記録したものとして扱うか
+    ///   - now: 現在時刻（テストで差し替える）
+    init(
+        modelContext: ModelContext? = nil,
+        eventHandlers: [any TimerEventHandler] = [],
+        isFromWatch: Bool = false,
+        now: @escaping () -> Date = Date.init
+    ) {
+        self.modelContext = modelContext
+        self.eventHandlers = eventHandlers
+        self.isFromWatch = isFromWatch
+        self.now = now
     }
 
     // MARK: - Computed Properties
@@ -54,65 +59,40 @@ final class TimerViewModel: ObservableObject {
     // MARK: - Timer Control
 
     func toggleTimer() {
-        let now = Date()
         if state.isRunning {
             withAnimation(.spring(response: 0.3)) {
-                state.pause(now: now)
+                state.pause(now: now())
             }
-            stopTimerSubscription()
-            #if os(iOS)
-            notificationManager.cancelAllNotifications()
-            #endif
+            stopTicking()
+            send(.paused)
         } else {
-            var isNewSession = false
             withAnimation(.spring(response: 0.3)) {
-                isNewSession = state.start(now: now)
+                _ = state.start(now: now())
             }
             guard state.isRunning else { return }
-            startTimerSubscription()
-            #if os(iOS)
-            if isNewSession {
-                notificationManager.scheduleTimerCompletionNotification(for: timerMode, in: timeRemaining)
-            }
-            #endif
+            startTicking()
+            send(.started)
         }
-        #if os(iOS)
-        liveActivityManager.update(with: self)
-        TimerSyncManager.shared.sendState(self)
-        WidgetDataWriter.updateTimer(with: self)
-        #endif
     }
 
     func resetTimer() {
         withAnimation {
-            stopTimerSubscription()
+            stopTicking()
             state.reset()
         }
-        #if os(iOS)
-        notificationManager.cancelAllNotifications()
-        liveActivityManager.end()
-        TimerSyncManager.shared.sendState(self)
-        WidgetDataWriter.updateTimer(with: self)
-        #endif
+        send(.reset)
     }
 
     func switchMode(to mode: TimerMode, animated: Bool = true) {
         guard mode != timerMode else { return }
-        #if os(iOS)
-        notificationManager.cancelAllNotifications()
-        liveActivityManager.end()
-        #endif
-        stopTimerSubscription()
+        stopTicking()
 
         if animated {
             withAnimation { state.switchMode(to: mode) }
         } else {
             state.switchMode(to: mode)
         }
-        #if os(iOS)
-        TimerSyncManager.shared.sendState(self)
-        WidgetDataWriter.updateTimer(with: self)
-        #endif
+        send(.modeSwitched)
     }
 
     // MARK: - Scene Phase (iOS / watchOS 共通)
@@ -128,50 +108,54 @@ final class TimerViewModel: ObservableObject {
 
     /// iPhone から WatchConnectivity 経由で届いた最新のタイマー状態を反映する。
     func applyRemoteState(_ remote: TimerSyncState) {
-        stopTimerSubscription()
-        state.apply(remote, now: Date())
+        stopTicking()
+        state.apply(remote, now: now())
         if state.isRunning {
-            startTimerSubscription()
+            startTicking()
         }
     }
 
     // MARK: - Private
 
-    private func startTimerSubscription() {
-        timerCancellable = timerPublisher
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.tick()
-            }
+    private func send(_ event: TimerEvent) {
+        let context = TimerEventContext(state: state, tag: selectedTag, modelContext: modelContext)
+        for handler in eventHandlers {
+            handler.handle(event, context: context)
+        }
     }
 
-    private func stopTimerSubscription() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
+    // 表示の秒の切り替わりが遅れないよう、1秒より細かい間隔で残り時間を更新する
+    private func startTicking() {
+        tickTask?.cancel()
+        tickTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(250))
+                guard !Task.isCancelled else { return }
+                self?.tick()
+            }
+        }
+    }
+
+    private func stopTicking() {
+        tickTask?.cancel()
+        tickTask = nil
     }
 
     private func tick() {
-        guard let completion = state.tick(now: Date()) else { return }
+        guard let completion = state.tick(now: now()) else { return }
         timerCompleted(completion)
     }
 
     private func timerCompleted(_ completion: TimerCompletion) {
-        stopTimerSubscription()
-        #if os(iOS)
-        notificationManager.cancelAllNotifications()
-        #endif
+        stopTicking()
         completionCount += 1
+        send(.completed(completion))
         saveSession(completion)
         switchMode(to: completion.mode.next, animated: false)
     }
 
     private func saveSession(_ completion: TimerCompletion) {
         guard let modelContext, let startDate = completion.sessionStartDate else { return }
-        #if os(watchOS)
-        let isFromWatch = true
-        #else
-        let isFromWatch = false
-        #endif
         let session = FocusSession(
             startDate: startDate,
             duration: completion.duration,
@@ -183,9 +167,7 @@ final class TimerViewModel: ObservableObject {
         modelContext.insert(session)
         do {
             try modelContext.save()
-            #if os(iOS)
-            WidgetDataWriter.updateHistory(using: modelContext)
-            #endif
+            send(.sessionSaved)
             #if DEBUG
             print("セッションを保存しました: \(session.formattedDuration)")
             #endif
