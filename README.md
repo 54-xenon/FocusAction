@@ -1,10 +1,11 @@
 # FocusAction
 
 ![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20watchOS-blue)
-![Swift](https://img.shields.io/badge/Swift-6.0-orange)
+![Swift](https://img.shields.io/badge/Swift-6-orange)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-5.0-green)
 
 ポモドーロテクニックを活用した集中力向上のためのタイマーアプリです。
+
 ##  概要
 
 FocusActionは、作業効率を最大化するためのシンプルで美しいポモドーロタイマーアプリです。25分の集中時間と5分の休憩時間を繰り返すことで、生産性を向上させます。iPhone/iPadに加えApple Watchにも対応しています。
@@ -21,14 +22,16 @@ FocusActionは、作業効率を最大化するためのシンプルで美しい
 - 🏝️ **Live Activity / Dynamic Island**: 実行中のタイマーをロック画面・Dynamic Island・Apple WatchのSmart Stackに表示（iOSのみ）
 - 🧩 **ウィジェット**: タイマーと履歴（今日・今週の集中時間、直近7日間のグラフ）のホーム画面/ロック画面ウィジェット（iOSのみ）
 - 🔔 **通知**: タイマー完了時にローカル通知でお知らせ
-- ⚙️ **カスタマイズ可能**: 設定画面でタイマーをカスタマイズ（今後実装予定）
+- ⚙️ **カスタマイズ**: タイマー時間などのカスタマイズは今後実装予定
 
 ## スクリーンショット
-UIがもうちょっと固まってきたら追加します.
+UIがもうちょっと固まってきたら追加します。
+
 ### メイン画面
 - 円形のプログレスバーで残り時間を表示
 - 集中モード（青）と休憩モード（緑）で色が変化
 - 円の中のタグからセッションに付けるタグを選択（実行中も変更可）
+- 上部のメニューから集中/休憩モードを切り替え
 - 再生/一時停止、リセットボタンで簡単操作
 
 ### モード切替
@@ -36,8 +39,15 @@ UIがもうちょっと固まってきたら追加します.
 - 休憩タイム: 5分間の休憩時間
 
 ### 設定画面
-- 通知の管理
+- 通知の許可状況の確認・テスト通知の送信
+- タグの作成・編集・削除
 - バージョンの確認
+
+### Apple Watch
+- 起動時にタグ一覧（タグごとの累計集中時間付き）を表示
+- タグを選ぶとタイマー画面に遷移し、そのタグでセッションを開始
+- タグの作成・編集はiPhone側で行います
+
 ##  アーキテクチャ
 
 ### ファイル構成
@@ -64,6 +74,7 @@ FocusAction.xcodeproj
 │   ├── Services/
 │   │   ├── PersistenceController.swift   … CloudKit対応ModelContainerの構築 ※iOS/watchOS共通
 │   │   ├── TimerSyncManager.swift        … WatchConnectivityによるiPhone-Watch間の状態同期 ※iOS/watchOS共通
+│   │   ├── TimerEventHandlers.swift      … TimerEventを受けて通知・Live Activity・Watch同期・Widgetを更新（iOS専用）
 │   │   └── NotificationManager.swift     … ローカル通知の管理（iOS専用）
 │   └── Views/
 │       ├── ControlView.swift             … TabViewによるルートナビゲーション
@@ -72,6 +83,10 @@ FocusAction.xcodeproj
 │       ├── SettingView.swift             … 設定画面
 │       ├── Color+Hex.swift, TagChipView.swift … タグ表示用の共通部品 ※iOS/watchOS共通
 │       └── TagPickerMenu.swift, TagManagementView.swift, TagEditView.swift … タグ選択・管理（iOS専用）
+│
+├── FocusActionTests/                     … 単体テスト（Swift Testing）
+│   ├── FocusActionTests.swift            … TimerState のテスト
+│   └── TimerStoreTests.swift             … TimerStore のイベント発行・セッション保存のテスト
 │
 ├── FocusActionWidget/                    … Widget Extension（iOS専用）
 │   ├── FocusActionWidgetBundle.swift
@@ -93,8 +108,12 @@ FocusAction.xcodeproj
 #### TimerView
 - タイマーのメイン画面
 - App で1つだけ生成した`TimerStore`を environment から受け取り、`horizontalSizeClass`でiPhone/iPad向けに出し分け
-- `Task`のループで0.25秒ごとに残り時間を更新
 - Liquid Glassエフェクトを活用したモダンなUI
+
+#### TimerState / TimerStore
+- `TimerState`: 開始・一時停止・リセット・完了判定などタイマーの進行ロジックを持つ値型（副作用なし）
+- `TimerStore`: `TimerState`を保持する`@Observable`なストア。`Task`のループで0.25秒ごとに残り時間を更新し、完了したセッションをSwiftDataに保存
+- 状態の変化は`TimerEvent`として発行され、注入された`TimerEventHandler`（通知・Live Activity・Watch同期・Widget）が副作用を担当
 
 #### TimerMode
 - 集中モードと休憩モードを定義
@@ -109,7 +128,7 @@ FocusAction.xcodeproj
 
 ##  技術スタック
 
-- **言語**: Swift 6.0
+- **言語**: Swift 6（言語モードは Swift 5）
 - **フレームワーク**: SwiftUI
 - **対象OS**: iOS/iPadOS, watchOS
 - **状態管理**: Observation（`@Observable` の `TimerStore` を App で生成し `.environment` で配布）、履歴は SwiftData の `@Query`
@@ -121,18 +140,17 @@ FocusAction.xcodeproj
 
 ##  必要要件
 
-**OS27、Duoへの対応状況:** OS27を搭載したデバイスは現在動作確認中です。iPhone Duoでの動作は確認済みですが、いくつかの問題(履歴画面とDinamic IslandのUIに問題を確認しています。)
+> **OS27・iPhone Duoへの対応状況:** OS27を搭載したデバイスは現在動作確認中です。iPhone Duoでは動作を確認済みですが、履歴画面とDynamic IslandのUIに問題があることを確認しています。
 
 - iOS/iPadOS 26.0以降
 - watchOS 26.4以降
-- Xcode 16以降
-- Swift 6.0以降
+- Xcode 26以降
 
 ##  インストール
 
 1. リポジトリをクローン
 ```bash
-git clone [repository-url]
+git clone https://github.com/54-xenon/FocusAction.git
 ```
 
 2. Xcodeでプロジェクトを開く
@@ -150,8 +168,10 @@ open FocusAction.xcodeproj
 1. **タイマーの開始**: 再生ボタンをタップしてタイマーを開始
 2. **一時停止**: 一時停止ボタンで作業を中断
 3. **リセット**: リセットボタンでタイマーを初期状態に戻す
-4. **モード切替**: 下部のモードボタンで集中モードと休憩モードを手動で切り替え
+4. **モード切替**: 画面上部のモードメニューから集中モードと休憩モードを手動で切り替え
 5. **自動切替**: タイマー完了後、自動的に次のモードへ移行
+6. **タグ付け**: 円の中のタグをタップしてセッションに付けるタグを選択（タグは設定画面で作成）
+7. **Apple Watch**: タグ一覧からタグを選んでタイマーを開始。状態はiPhoneとリアルタイムで同期
 
 ##  今後の予定
 
@@ -169,6 +189,7 @@ open FocusAction.xcodeproj
 - [x] ウィジェット対応
 - [x] ライブアクティビティへの対応
 - [x] Dynamic Islandへの対応(iOSのみ)
+- [x] タグ機能
 - [ ] macOSアプリの追加
 
 ##  デザイン
